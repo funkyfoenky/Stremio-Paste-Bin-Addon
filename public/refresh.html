@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Refresh Catalogue - Stremio Addon</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -187,56 +188,77 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.refresh">
     <div class="container">
         <div class="nav-header">
-            <h1>🔄 Refresh Catalogue</h1>
-            <p class="subtitle">Mettre à jour le catalogue depuis les Pastebins</p>
+            <h1 data-i18n="refresh.title">🔄 Refresh Catalogue</h1>
+            <p class="subtitle" data-i18n="refresh.subtitle">Mettre à jour le catalogue depuis les Pastebins</p>
             <div class="nav-links">
-                <a href="/" class="nav-link">🏠 Accueil</a>
-                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
-                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
-                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+                <a href="/" class="nav-link" data-i18n="common.backHome">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link" data-i18n="nav.addContent">➕ Ajouter du contenu</a>
+                <a href="/manage-content.html" class="nav-link" data-i18n="nav.manageContent">📋 Gérer le contenu</a>
+                <a href="/pastebin-manager.html" class="nav-link" data-i18n="nav.pastebin">🔗 Pastebin Manager</a>
             </div>
         </div>
         
         <div class="stats">
             <div class="stat-item">
-                <span class="stat-label">Films actuels:</span>
+                <span class="stat-label" data-i18n="refresh.statFilms">Films actuels:</span>
                 <span class="stat-value" id="filmsCount">-</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Séries actuelles:</span>
+                <span class="stat-label" data-i18n="refresh.statSeries">Séries actuelles:</span>
                 <span class="stat-value" id="seriesCount">-</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Épisodes:</span>
+                <span class="stat-label" data-i18n="refresh.statEpisodes">Épisodes:</span>
                 <span class="stat-value" id="episodesCount">-</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Catalogues:</span>
+                <span class="stat-label" data-i18n="refresh.statCatalogs">Catalogues:</span>
                 <span class="stat-value" id="catalogsCount">-</span>
             </div>
         </div>
         
-        <button id="refreshBtn" class="refresh-btn" onclick="startRefresh()">
+        <button id="refreshBtn" class="refresh-btn" onclick="startRefresh()" data-i18n="refresh.button">
             🔄 Mettre à jour le catalogue
         </button>
         
         <div id="status" class="status"></div>
         
-        <div class="footer">
+        <div class="footer" data-i18n="refresh.footer">
             Le refresh peut prendre 1-3 minutes selon la taille du catalogue
         </div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
+
         const refreshBtn = document.getElementById('refreshBtn');
         const statusDiv = document.getElementById('status');
         const filmsCountSpan = document.getElementById('filmsCount');
         const seriesCountSpan = document.getElementById('seriesCount');
         const episodesCountSpan = document.getElementById('episodesCount');
         const catalogsCountSpan = document.getElementById('catalogsCount');
+
+        function refreshButtonLabel(inProgress) {
+            return inProgress ? I18n.t('refresh.buttonProgress') : I18n.t('refresh.button');
+        }
+
+        function formatStatsLine(stats) {
+            return I18n.t('refresh.statsLine', {
+                films: stats.films,
+                series: stats.series,
+                episodes: stats.episodes
+            });
+        }
+
+        document.addEventListener('i18n:languageChanged', () => {
+            if (!refreshBtn.disabled) {
+                refreshBtn.textContent = refreshButtonLabel(false);
+            }
+        });
         
         // Charger les stats initiales
         async function loadStats() {
@@ -262,7 +284,7 @@
                 
                 if (!data.inProgress && refreshBtn.disabled) {
                     refreshBtn.disabled = false;
-                    refreshBtn.innerHTML = '🔄 Mettre à jour le catalogue';
+                    refreshBtn.textContent = refreshButtonLabel(false);
                     if (statusCheckInterval) {
                         clearInterval(statusCheckInterval);
                         statusCheckInterval = null;
@@ -271,12 +293,12 @@
 
                     const result = data.lastResult;
                     if (result?.status === 'success') {
-                        const statsMsg = `✅ ${result.message}<br><br>📊 ${result.stats.films} films | ${result.stats.series} séries | ${result.stats.episodes} épisodes`;
+                        const statsMsg = `✅ ${result.message}<br><br>${formatStatsLine(result.stats)}`;
                         showStatus('success', statsMsg);
                     } else if (result?.status === 'error') {
-                        showStatus('error', '❌ ' + result.message);
+                        showStatus('error', I18n.t('refresh.error', { message: result.message }));
                     } else {
-                        showStatus('success', '✅ Refresh terminé.');
+                        showStatus('success', I18n.t('refresh.done'));
                     }
                 }
             } catch (error) {
@@ -288,9 +310,9 @@
             if (refreshBtn.disabled) return;
             
             refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<span class="loading"></span>Mise à jour en cours...';
+            refreshBtn.innerHTML = '<span class="loading"></span>' + I18n.t('refresh.buttonProgress');
             
-            showStatus('info', '🔄 Mise à jour du catalogue en cours, cela peut prendre quelques minutes...');
+            showStatus('info', I18n.t('refresh.inProgress'));
             
             // Démarrer la vérification périodique du statut
             if (!statusCheckInterval) {
@@ -302,21 +324,20 @@
                 const data = await response.json();
                 
                 if (data.status === 'success') {
-                    const statsMsg = `✅ ${data.message}<br><br>📊 ${data.stats.films} films | ${data.stats.series} séries | ${data.stats.episodes} épisodes`;
+                    const statsMsg = `✅ ${data.message}<br><br>${formatStatsLine(data.stats)}`;
                     showStatus('success', statsMsg);
                     filmsCountSpan.textContent = data.stats.films;
                     seriesCountSpan.textContent = data.stats.series;
                     episodesCountSpan.textContent = data.stats.episodes;
                 } else if (data.status === 'started' || data.status === 'in_progress') {
-                    // Réponse normale : le refresh tourne en arrière-plan
-                    showStatus('info', '🔄 Mise à jour en cours, veuillez patienter…');
+                    showStatus('info', I18n.t('refresh.waiting'));
                 } else {
-                    showStatus('error', '❌ Erreur: ' + data.message);
+                    showStatus('error', I18n.t('refresh.error', { message: data.message }));
                 }
             } catch (error) {
-                showStatus('error', '❌ Erreur: ' + error.message);
+                showStatus('error', I18n.t('refresh.error', { message: error.message }));
                 refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '🔄 Mettre à jour le catalogue';
+                refreshBtn.textContent = refreshButtonLabel(false);
             }
         }
         

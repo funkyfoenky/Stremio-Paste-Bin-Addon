@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gérer le contenu personnalisé - Stremio Addon</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -284,20 +285,20 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.manageContent">
     <div class="container">
         <div class="nav-header">
-            <h1>📋 Gérer le contenu personnalisé</h1>
-            <p class="subtitle">Visualisez, modifiez ou supprimez le contenu que vous avez ajouté manuellement</p>
+            <h1 data-i18n="manage.title">📋 Gérer le contenu personnalisé</h1>
+            <p class="subtitle" data-i18n="manage.subtitle">Visualisez, modifiez ou supprimez le contenu que vous avez ajouté manuellement</p>
             <div class="nav-links">
-                <a href="/" class="nav-link">🏠 Accueil</a>
-                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
-                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
-                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+                <a href="/" class="nav-link" data-i18n="common.backHome">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link" data-i18n="nav.addContent">➕ Ajouter du contenu</a>
+                <a href="/refresh.html" class="nav-link" data-i18n="nav.refresh">🔄 Refresh</a>
+                <a href="/pastebin-manager.html" class="nav-link" data-i18n="nav.pastebin">🔗 Pastebin Manager</a>
             </div>
         </div>
         
-        <div class="info-box">
+        <div class="info-box" data-i18n="manage.info" data-i18n-html>
             <strong>💡 Information :</strong> Cette page affiche uniquement le contenu ajouté via l'endpoint d'ajout manuel (catalogue "Contenu personnalisé"). 
             Le contenu parsé depuis les codes pastebin n'est pas affiché ici.
         </div>
@@ -306,13 +307,16 @@
         
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <p>Chargement du contenu...</p>
+            <p data-i18n="manage.loadingContent">Chargement du contenu...</p>
         </div>
         
         <div id="contentList" class="content-list" style="display: none;"></div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
+
         let customContent = [];
         
         function escapeHtml(text) {
@@ -333,10 +337,10 @@
                     customContent = data.content || [];
                     renderContent();
                 } else {
-                    showStatus('Erreur lors du chargement: ' + (data.error || 'Erreur inconnue'), 'error');
+                    showStatus(I18n.t('manage.loadError', { message: data.error || I18n.t('common.errorUnknown') }), 'error');
                 }
             } catch (error) {
-                showStatus('Erreur lors du chargement: ' + error.message, 'error');
+                showStatus(I18n.t('manage.loadError', { message: error.message }), 'error');
             } finally {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('contentList').style.display = 'grid';
@@ -351,11 +355,11 @@
                 list.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
-                        <h3>Aucun contenu personnalisé</h3>
-                        <p>Vous n'avez pas encore ajouté de contenu personnalisé.</p>
+                        <h3>${I18n.t('manage.emptyTitle')}</h3>
+                        <p>${I18n.t('manage.emptyText')}</p>
                         <p style="margin-top: 20px;">
                             <a href="/add-content.html" style="color: #667eea; text-decoration: none; font-weight: 600;">
-                                ➕ Ajouter du contenu
+                                ${I18n.t('nav.addContent')}
                             </a>
                         </p>
                     </div>
@@ -365,21 +369,20 @@
             
             list.innerHTML = customContent.map((item, index) => {
                 const typeBadge = item.type === 'movie' ? 'badge-movie' : 'badge-series';
-                const typeLabel = item.type === 'movie' ? 'Film' : 'Série';
+                const typeLabel = item.type === 'movie' ? I18n.t('common.movie') : I18n.t('common.series');
                 const filesCount = item.filesCount || (item.type === 'movie' ? item.allDebridIds?.length || 0 : 1);
                 const safeName = escapeHtml(item.name);
                 
-                // Générer la section des saisons pour les séries
                 let seasonsSection = '';
                 if (item.type === 'series' && item.seasons && item.seasons.length > 0) {
                     seasonsSection = `
                         <div class="seasons-section">
-                            <div class="seasons-title">📺 Saisons (${item.seasons.length}) :</div>
+                            <div class="seasons-title">${I18n.t('manage.seasons', { count: item.seasons.length })}</div>
                             <div class="seasons-list">
                                 ${item.seasons.map(season => `
                                     <div class="season-item">
-                                        <span class="season-number">Saison ${season.number}</span>
-                                        <span class="season-episodes">(${season.episodesCount} épisode${season.episodesCount > 1 ? 's' : ''})</span>
+                                        <span class="season-number">${I18n.t('manage.season', { num: season.number })}</span>
+                                        <span class="season-episodes">${I18n.t('manage.episodeCount', { count: season.episodesCount, s: season.episodesCount > 1 ? 's' : '' })}</span>
                                         <button type="button" class="btn-season-delete" data-action="delete-season" data-index="${index}" data-season="${season.number}">
                                             🗑️
                                         </button>
@@ -399,14 +402,14 @@
                                     ${safeName}
                                 </div>
                                 <div class="content-details">
-                                    <span>🎬 TMDB ID: ${escapeHtml(item.tmdbId)}</span>
-                                    <span>📅 Année: ${escapeHtml(item.year || 'N/A')}</span>
-                                    <span>📁 ${item.type === 'movie' ? 'Fichiers' : 'Épisodes'}: ${filesCount}</span>
+                                    <span>${I18n.t('manage.tmdbId')} ${escapeHtml(item.tmdbId)}</span>
+                                    <span>${I18n.t('manage.year')} ${escapeHtml(item.year || 'N/A')}</span>
+                                    <span>${item.type === 'movie' ? I18n.t('manage.files') : I18n.t('manage.episodesLabel')} ${filesCount}</span>
                                 </div>
                             </div>
                             <div class="content-actions">
                                 <button type="button" class="btn btn-delete" data-action="delete-content" data-index="${index}">
-                                    🗑️ Supprimer ${item.type === 'movie' ? 'le film' : 'la série'}
+                                    ${item.type === 'movie' ? I18n.t('manage.deleteMovie') : I18n.t('manage.deleteSeries')}
                                 </button>
                             </div>
                         </div>
@@ -415,6 +418,10 @@
                 `;
             }).join('');
         }
+
+        document.addEventListener('i18n:languageChanged', () => {
+            if (customContent.length >= 0) renderContent();
+        });
         
         document.getElementById('contentList').addEventListener('click', (event) => {
             const button = event.target.closest('[data-action]');
@@ -435,8 +442,8 @@
         
         // Supprimer un contenu (film ou série complète)
         async function deleteContent(tmdbId, name, type) {
-            const typeLabel = type === 'movie' ? 'le film' : 'la série';
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer ${typeLabel} "${name}" (TMDB: ${tmdbId}) ?\n\nCette action est irréversible et supprimera ${type === 'series' ? 'toutes les saisons' : 'tous les fichiers'}.`)) {
+            const confirmKey = type === 'movie' ? 'manage.deleteConfirmMovie' : 'manage.deleteConfirmSeries';
+            if (!confirm(I18n.t(confirmKey, { name, tmdbId }))) {
                 return;
             }
             
@@ -448,20 +455,25 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showStatus(`✅ "${name}" a été supprimé${type === 'movie' ? '' : 'e'} avec succès`, 'success');
+                    const suffix = type === 'movie' ? '' : 'e';
+                    showStatus(I18n.t('manage.deleted', { name, suffix }), 'success');
                     // Recharger la liste
                     await loadContent();
                 } else {
                     throw new Error(data.error || 'Erreur lors de la suppression');
                 }
             } catch (error) {
-                showStatus('Erreur lors de la suppression: ' + error.message, 'error');
+                showStatus(I18n.t('manage.deleteError', { message: error.message }), 'error');
             }
         }
         
-        // Supprimer une saison spécifique
         async function deleteSeason(tmdbId, seriesName, seasonNumber, episodesCount) {
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer la saison ${seasonNumber} de "${seriesName}" ?\n\nCette action supprimera ${episodesCount} épisode${episodesCount > 1 ? 's' : ''} et est irréversible.`)) {
+            if (!confirm(I18n.t('manage.deleteSeasonConfirm', {
+                season: seasonNumber,
+                name: seriesName,
+                count: episodesCount,
+                s: episodesCount > 1 ? 's' : ''
+            }))) {
                 return;
             }
             
@@ -474,17 +486,16 @@
                 
                 if (data.success) {
                     if (data.seriesDeleted) {
-                        showStatus(`✅ La saison ${seasonNumber} et la série "${seriesName}" ont été supprimées (plus de saisons)`, 'success');
+                        showStatus(I18n.t('manage.seasonDeleted', { season: seasonNumber, name: seriesName }), 'success');
                     } else {
-                        showStatus(`✅ La saison ${seasonNumber} de "${seriesName}" a été supprimée avec succès`, 'success');
+                        showStatus(I18n.t('manage.seasonDeleted', { season: seasonNumber, name: seriesName }), 'success');
                     }
-                    // Recharger la liste
                     await loadContent();
                 } else {
-                    throw new Error(data.error || 'Erreur lors de la suppression');
+                    throw new Error(data.error || I18n.t('manage.deleteError', { message: '' }));
                 }
             } catch (error) {
-                showStatus('Erreur lors de la suppression: ' + error.message, 'error');
+                showStatus(I18n.t('manage.deleteError', { message: error.message }), 'error');
             }
         }
         

@@ -3,7 +3,8 @@
     "username": "admin",
     "passwordHash": "scrypt$16384$8$1$2d9+oOt81jIdZZfxB/PK2Q==$REkRBzap7ZdTA/YNvfr8C3gzAcWG2vQBVVSONk4ZnUftAcTlILFewN7c4AWLf5J4ySzqx62iWrubvqzA7WGBAw==",
     "role": "admin",
-    "mustChangePassword": false
+    "mustChangePassword": false,
+    "lastLogin": "2026-06-18T13:18:32.124Z"
   },
   "users": {}
 }

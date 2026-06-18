@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter du contenu - Stremio Addon</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -352,26 +353,26 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.addContent">
     <div class="container">
         <div class="nav-header">
-            <h1>➕ Ajouter du contenu</h1>
-            <p class="subtitle">Ajoutez manuellement du contenu en utilisant un ID AllDebrid et un ID TMDB</p>
+            <h1 data-i18n="add.title">➕ Ajouter du contenu</h1>
+            <p class="subtitle" data-i18n="add.subtitle">Ajoutez manuellement du contenu en utilisant un ID AllDebrid et un ID TMDB</p>
             <div class="nav-links">
-                <a href="/" class="nav-link">🏠 Accueil</a>
-                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
-                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
-                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+                <a href="/" class="nav-link" data-i18n="common.backHome">🏠 Accueil</a>
+                <a href="/manage-content.html" class="nav-link" data-i18n="nav.manageContent">📋 Gérer le contenu</a>
+                <a href="/refresh.html" class="nav-link" data-i18n="nav.refresh">🔄 Refresh</a>
+                <a href="/pastebin-manager.html" class="nav-link" data-i18n="nav.pastebin">🔗 Pastebin Manager</a>
             </div>
         </div>
         
         <div class="info-box">
-            <strong>💡 Comment utiliser :</strong>
+            <div data-i18n="add.howTo" data-i18n-html><strong>💡 Comment utiliser :</strong></div>
             <ul>
-                <li><strong>ID AllDebrid :</strong> L'ID du magnet AllDebrid que vous souhaitez ajouter (ex: <code>JcjvA9vcYB64xQHxOpLf-Z_ETiDqAR8pZxCZVJxpctg</code>)</li>
-                <li><strong>ID TMDB :</strong> L'ID du film ou de la série sur TMDB (ex: <code>1250</code> pour un film, <code>1396</code> pour une série)</li>
+                <li data-i18n="add.howToAlldebrid" data-i18n-html><strong>ID AllDebrid :</strong> L'ID du magnet AllDebrid que vous souhaitez ajouter (ex: <code>JcjvA9vcYB64xQHxOpLf-Z_ETiDqAR8pZxCZVJxpctg</code>)</li>
+                <li data-i18n="add.howToTmdb" data-i18n-html><strong>ID TMDB :</strong> L'ID du film ou de la série sur TMDB (ex: <code>1250</code> pour un film, <code>1396</code> pour une série)</li>
             </ul>
-            <p style="margin-top: 10px;">
+            <p style="margin-top: 10px;" data-i18n="add.note" data-i18n-html>
                 <strong>Note :</strong> Le contenu sera ajouté dans le catalogue "Contenu personnalisé" et sera disponible dans Stremio après l'ajout.
             </p>
         </div>
@@ -380,14 +381,15 @@
         
         <!-- Section de recherche -->
         <div class="search-section" style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-            <h2 style="margin-bottom: 15px; font-size: 20px; color: #333;">🔍 Rechercher un contenu existant</h2>
-            <p style="margin-bottom: 15px; color: #666; font-size: 13px;">
+            <h2 style="margin-bottom: 15px; font-size: 20px; color: #333;" data-i18n="add.searchTitle">🔍 Rechercher un contenu existant</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 13px;" data-i18n="add.searchDesc">
                 Recherchez un film ou une série par son ID TMDB pour voir ce qui est déjà dans votre base de données et ajouter des saisons ou épisodes manquants.
             </p>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <input 
                     type="text" 
                     id="searchTmdbId" 
+                    data-i18n-placeholder="add.searchPlaceholder"
                     placeholder="Entrez l'ID TMDB (ex: 1396)"
                     style="flex: 1; min-width: 200px; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;"
                 >
@@ -395,20 +397,21 @@
                     id="searchContentType" 
                     style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; min-width: 150px;"
                 >
-                    <option value="">Auto-détection</option>
-                    <option value="movie">Film</option>
-                    <option value="series">Série</option>
+                    <option value="" data-i18n="add.autoDetect">Auto-détection</option>
+                    <option value="movie" data-i18n="common.movie">Film</option>
+                    <option value="series" data-i18n="common.series">Série</option>
                 </select>
                 <button 
                     type="button" 
                     id="searchBtn" 
                     class="submit-btn"
                     style="padding: 10px 20px; width: auto;"
+                    data-i18n="add.search"
                 >
                     🔍 Rechercher
                 </button>
             </div>
-            <p style="margin-top: 10px; color: #666; font-size: 12px;">
+            <p style="margin-top: 10px; color: #666; font-size: 12px;" data-i18n="add.searchNote" data-i18n-html>
                 <strong>Note :</strong> Si un ID TMDB existe à la fois pour un film et une série, sélectionnez explicitement le type pour éviter les conflits.
             </p>
         </div>
@@ -418,16 +421,17 @@
         
         <form id="addContentForm" onsubmit="addContent(event)">
             <div class="form-group" id="allDebridIdGroup">
-                <label for="allDebridId">ID AllDebrid *</label>
+                <label for="allDebridId" data-i18n="add.alldebridId">ID AllDebrid *</label>
                 <input 
                     type="text" 
                     id="allDebridId" 
                     name="allDebridId"
+                    data-i18n-placeholder="add.alldebridPlaceholder"
                     placeholder="Entrez l'ID AllDebrid du magnet"
                     required
                     autocomplete="off"
                 >
-                <div class="help-text">L'ID du magnet AllDebrid que vous souhaitez ajouter (pour les films uniquement)</div>
+                <div class="help-text" data-i18n="add.alldebridHelp">L'ID du magnet AllDebrid que vous souhaitez ajouter (pour les films uniquement)</div>
             </div>
             
             <!-- Modal pour sélectionner un magnet AllDebrid -->
@@ -467,26 +471,27 @@
             </div>
             
             <div class="form-group">
-                <label for="tmdbId">ID TMDB *</label>
+                <label for="tmdbId" data-i18n="add.tmdbId">ID TMDB *</label>
                 <input 
                     type="text" 
                     id="tmdbId" 
                     name="tmdbId"
+                    data-i18n-placeholder="add.tmdbPlaceholder"
                     placeholder="Entrez l'ID TMDB (film ou série)"
                     required
                     autocomplete="off"
                 >
-                <div class="help-text">L'ID du film ou de la série sur The Movie Database (TMDB)</div>
+                <div class="help-text" data-i18n="add.tmdbHelp">L'ID du film ou de la série sur The Movie Database (TMDB)</div>
             </div>
             
             <div class="form-group">
-                <label for="contentType">Type de contenu *</label>
+                <label for="contentType" data-i18n="add.contentType">Type de contenu *</label>
                 <select id="contentType" name="contentType" class="form-group input" required>
-                    <option value="">-- Sélectionnez un type --</option>
-                    <option value="movie">Film</option>
-                    <option value="series">Série</option>
+                    <option value="" data-i18n="add.selectType">-- Sélectionnez un type --</option>
+                    <option value="movie" data-i18n="common.movie">Film</option>
+                    <option value="series" data-i18n="common.series">Série</option>
                 </select>
-                <div class="help-text">
+                <div class="help-text" data-i18n="add.typeHelp" data-i18n-html>
                     <strong>Important :</strong> Sélectionnez explicitement le type pour éviter les conflits si un ID TMDB existe à la fois pour un film et une série.
                     L'auto-détection n'est plus disponible pour garantir la précision.
                 </div>
@@ -608,20 +613,31 @@
                 <input type="hidden" id="seasonNumber" name="seasonNumber">
             </div>
             
-            <button type="submit" class="submit-btn" id="submitBtn">
+            <button type="submit" class="submit-btn" id="submitBtn" data-i18n="add.submit">
                 ➕ Ajouter le contenu
             </button>
         </form>
         
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <p>Ajout du contenu en cours...</p>
+            <p data-i18n="add.loadingAdd">Ajout du contenu en cours...</p>
         </div>
         
         <div id="result" class="result-box"></div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
+        const t = (key, vars) => I18n.t(key, vars);
+
+        document.addEventListener('i18n:languageChanged', () => {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn && !submitBtn.disabled) submitBtn.textContent = t('add.submit');
+            const searchBtn = document.getElementById('searchBtn');
+            if (searchBtn && searchBtn.textContent.indexOf('⏳') === -1) searchBtn.textContent = t('add.search');
+        });
+
         let currentSeasons = [];
         let currentEpisodes = [];
         

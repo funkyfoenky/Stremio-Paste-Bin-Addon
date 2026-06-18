@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réinitialisation - StremioPasteBin</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
         .container {
             max-width: 700px;
             margin: 0 auto;
@@ -22,20 +21,11 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             padding: 30px;
         }
-
         h1 { color: #333; font-size: 28px; margin-bottom: 8px; }
         .subtitle { color: #666; margin-bottom: 24px; font-size: 14px; }
-
         .nav-links { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-        .nav-link {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 6px 12px;
-            border-radius: 4px;
-        }
+        .nav-link { color: #667eea; text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 4px; }
         .nav-link:hover { background: #f0f0f0; }
-
         .warning-box {
             background: #fff3cd;
             border: 1px solid #ffecb5;
@@ -47,28 +37,12 @@
             font-size: 14px;
             line-height: 1.6;
         }
-
         .warning-box ul { margin: 12px 0 0 20px; }
-
         .form-group { margin-bottom: 16px; }
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #333;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #333; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; }
         input:focus { outline: none; border-color: #dc3545; }
-
         .hint { font-size: 12px; color: #666; margin-top: 4px; }
-
         .reset-btn {
             width: 100%;
             padding: 14px;
@@ -83,60 +57,58 @@
         }
         .reset-btn:hover:not(:disabled) { background: #c82333; }
         .reset-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .status {
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: none;
-        }
+        .status { margin-top: 20px; padding: 14px; border-radius: 8px; font-size: 14px; display: none; }
         .status.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .status.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.adminReset">
     <div class="container">
-        <h1>🗑️ Réinitialisation complète</h1>
-        <p class="subtitle">Remet l'addon à zéro pour une nouvelle configuration</p>
+        <h1 data-i18n="reset.title">🗑️ Réinitialisation complète</h1>
+        <p class="subtitle" data-i18n="reset.subtitle">Remet l'addon à zéro pour une nouvelle configuration</p>
 
         <div class="nav-links">
-            <a href="/" class="nav-link">🏠 Accueil</a>
-            <a href="/pastebin-manager.html" class="nav-link">🔗 Configuration</a>
+            <a href="/" class="nav-link" data-i18n="common.backHome">🏠 Accueil</a>
+            <a href="/pastebin-manager.html" class="nav-link" data-i18n="nav.config">🔗 Configuration</a>
         </div>
 
         <div class="warning-box">
-            <strong>⚠️ Action irréversible</strong>
-            <p>Cette opération va supprimer :</p>
+            <strong data-i18n="reset.warningTitle">⚠️ Action irréversible</strong>
+            <p data-i18n="reset.warningIntro">Cette opération va supprimer :</p>
             <ul>
-                <li>Tous les films et séries du catalogue</li>
-                <li>Le cache VOD SQLite</li>
-                <li>Tous les utilisateurs (sauf admin réinitialisé à <code>admin/admin</code>)</li>
-                <li>Les codes pastebin</li>
-                <li>La clé API AllDebrid et l'URL pastebin (settings.json)</li>
+                <li data-i18n="reset.itemCatalog">Tous les films et séries du catalogue</li>
+                <li data-i18n="reset.itemCache">Le cache VOD SQLite</li>
+                <li data-i18n="reset.itemUsers" data-i18n-html>Tous les utilisateurs (sauf admin réinitialisé à <code>admin/admin</code>)</li>
+                <li data-i18n="reset.itemCodes">Les codes pastebin</li>
+                <li data-i18n="reset.itemSettings">La clé API AllDebrid et l'URL pastebin (settings.json)</li>
             </ul>
-            <p style="margin-top: 12px;">Les variables définies dans le fichier <code>.env</code> ne sont pas modifiées.</p>
+            <p style="margin-top: 12px;" data-i18n="reset.envNote" data-i18n-html>Les variables définies dans le fichier <code>.env</code> ne sont pas modifiées.</p>
         </div>
 
         <div class="form-group">
-            <label for="confirmText">Confirmation</label>
-            <input type="text" id="confirmText" placeholder="Tapez RESET pour confirmer" autocomplete="off">
-            <div class="hint">Saisissez exactement <strong>RESET</strong> en majuscules.</div>
+            <label for="confirmText" data-i18n="reset.confirmLabel">Confirmation</label>
+            <input type="text" id="confirmText" data-i18n-placeholder="reset.confirmPlaceholder" placeholder="Tapez RESET pour confirmer" autocomplete="off">
+            <div class="hint" data-i18n="reset.confirmHint" data-i18n-html>Saisissez exactement <strong>RESET</strong> en majuscules.</div>
         </div>
 
         <div class="form-group">
-            <label for="adminPassword">Mot de passe administrateur</label>
-            <input type="password" id="adminPassword" placeholder="Mot de passe actuel" autocomplete="current-password">
+            <label for="adminPassword" data-i18n="reset.passwordLabel">Mot de passe administrateur</label>
+            <input type="password" id="adminPassword" data-i18n-placeholder="reset.passwordPlaceholder" placeholder="Mot de passe actuel" autocomplete="current-password">
         </div>
 
-        <button id="resetBtn" class="reset-btn" onclick="resetAll()">🗑️ Tout réinitialiser</button>
-
+        <button id="resetBtn" class="reset-btn" onclick="resetAll()" data-i18n="reset.button">🗑️ Tout réinitialiser</button>
         <div id="status" class="status"></div>
     </div>
 
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
         const resetBtn = document.getElementById('resetBtn');
         const statusDiv = document.getElementById('status');
+
+        document.addEventListener('i18n:languageChanged', () => {
+            if (!resetBtn.disabled) resetBtn.textContent = I18n.t('reset.button');
+        });
 
         function showStatus(type, message) {
             statusDiv.className = 'status ' + type;
@@ -148,19 +120,17 @@
             const adminPassword = document.getElementById('adminPassword').value;
 
             if (confirmText !== 'RESET') {
-                showStatus('error', 'Veuillez taper RESET pour confirmer.');
+                showStatus('error', I18n.t('reset.confirmType'));
                 return;
             }
             if (!adminPassword) {
-                showStatus('error', 'Mot de passe administrateur requis.');
+                showStatus('error', I18n.t('reset.passwordRequired'));
                 return;
             }
-            if (!confirm('Dernière confirmation : tout sera effacé. Continuer ?')) {
-                return;
-            }
+            if (!confirm(I18n.t('reset.lastConfirm'))) return;
 
             resetBtn.disabled = true;
-            resetBtn.textContent = '⏳ Réinitialisation...';
+            resetBtn.textContent = I18n.t('reset.buttonProgress');
 
             try {
                 const response = await fetch('/api/admin/reset-all', {
@@ -175,13 +145,13 @@
                     document.getElementById('confirmText').value = '';
                     document.getElementById('adminPassword').value = '';
                 } else {
-                    showStatus('error', data.error || 'Erreur lors de la réinitialisation.');
+                    showStatus('error', data.error || I18n.t('reset.error'));
                 }
             } catch (error) {
-                showStatus('error', 'Erreur: ' + error.message);
+                showStatus('error', I18n.t('refresh.error', { message: error.message }));
             } finally {
                 resetBtn.disabled = false;
-                resetBtn.textContent = '🗑️ Tout réinitialiser';
+                resetBtn.textContent = I18n.t('reset.button');
             }
         }
     </script>

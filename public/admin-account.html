@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compte Administrateur - StremioPasteBin</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -159,14 +160,14 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.adminAccount">
     <div class="container">
         <div class="header">
-            <h1>🛡️ Compte administrateur</h1>
-            <a href="/" class="back-btn">← Menu</a>
+            <h1 data-i18n="account.title">🛡️ Compte administrateur</h1>
+            <a href="/" class="back-btn" data-i18n="common.backMenu">← Menu</a>
         </div>
         
-        <div class="warning" id="warning" style="display:none;">
+        <div class="warning" id="warning" style="display:none;" data-i18n="account.warning" data-i18n-html>
             <strong>Sécurité :</strong> votre compte admin est encore sur un état « par défaut ».
             Merci de changer au minimum le mot de passe avant de continuer.
         </div>
@@ -178,39 +179,42 @@
             <form id="adminAccountForm">
                 <div class="row">
                     <div class="form-group">
-                        <label for="username">Login admin</label>
+                        <label for="username" data-i18n="account.login">Login admin</label>
                         <input type="text" id="username" autocomplete="username" required>
-                        <div class="hint">Ex: <code>admin</code> ou un identifiant non devinable.</div>
+                        <div class="hint" data-i18n="account.loginHint" data-i18n-html>Ex: <code>admin</code> ou un identifiant non devinable.</div>
                     </div>
                     <div class="form-group">
-                        <label for="currentPassword">Mot de passe actuel</label>
+                        <label for="currentPassword" data-i18n="account.currentPassword">Mot de passe actuel</label>
                         <input type="password" id="currentPassword" autocomplete="current-password" required>
-                        <div class="hint">Requis pour valider les changements.</div>
+                        <div class="hint" data-i18n="account.currentPasswordHint">Requis pour valider les changements.</div>
                     </div>
                 </div>
                 
                 <div class="row">
                     <div class="form-group">
-                        <label for="newPassword">Nouveau mot de passe (optionnel)</label>
-                        <input type="password" id="newPassword" autocomplete="new-password" placeholder="Laissez vide pour ne pas changer">
-                        <div class="hint">Minimum 8 caractères recommandé.</div>
+                        <label for="newPassword" data-i18n="account.newPassword">Nouveau mot de passe (optionnel)</label>
+                        <input type="password" id="newPassword" autocomplete="new-password" data-i18n-placeholder="account.newPasswordPlaceholder" placeholder="Laissez vide pour ne pas changer">
+                        <div class="hint" data-i18n="account.newPasswordHint">Minimum 8 caractères recommandé.</div>
                     </div>
                     <div class="form-group">
-                        <label for="confirmNewPassword">Confirmer le nouveau mot de passe</label>
-                        <input type="password" id="confirmNewPassword" autocomplete="new-password" placeholder="Laissez vide si inchangé">
+                        <label for="confirmNewPassword" data-i18n="account.confirmPassword">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="confirmNewPassword" autocomplete="new-password" data-i18n-placeholder="account.confirmPasswordPlaceholder" placeholder="Laissez vide si inchangé">
                     </div>
                 </div>
                 
-                <button type="submit" class="btn">Enregistrer</button>
+                <button type="submit" class="btn" data-i18n="account.submit">Enregistrer</button>
             </form>
         </div>
         
-        <div class="footer-note">
-            Après changement du login, pensez à l’utiliser lors de vos prochaines connexions.
+        <div class="footer-note" data-i18n="account.footer">
+            Après changement du login, pensez à l'utiliser lors de vos prochaines connexions.
         </div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
+
         function showError(message) {
             const el = document.getElementById('error');
             el.textContent = message;
@@ -242,10 +246,10 @@
                         document.getElementById('warning').style.display = 'block';
                     }
                 } else {
-                    showError(data.error || 'Impossible de charger le compte admin');
+                    showError(data.error || I18n.t('account.loadError'));
                 }
             } catch (e) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         }
         
@@ -257,11 +261,11 @@
             const newPassword = document.getElementById('newPassword').value;
             const confirmNewPassword = document.getElementById('confirmNewPassword').value;
             
-            if (!username) return showError('Login requis');
-            if (!currentPassword) return showError('Mot de passe actuel requis');
+            if (!username) return showError(I18n.t('account.loginRequired'));
+            if (!currentPassword) return showError(I18n.t('account.passwordRequired'));
             
             if ((newPassword || confirmNewPassword) && newPassword !== confirmNewPassword) {
-                return showError('La confirmation du nouveau mot de passe ne correspond pas');
+                return showError(I18n.t('account.passwordMismatch'));
             }
             
             try {
@@ -284,16 +288,16 @@
                 }
                 
                 if (data.success) {
-                    showSuccess('Compte admin mis à jour');
+                    showSuccess(I18n.t('account.updated'));
                     document.getElementById('currentPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmNewPassword').value = '';
                     document.getElementById('warning').style.display = data.admin.mustChangePassword ? 'block' : 'none';
                 } else {
-                    showError(data.error || 'Erreur lors de la mise à jour');
+                    showError(data.error || I18n.t('account.updateError'));
                 }
             } catch (e) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         });
         

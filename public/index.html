@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StremioPasteBin - Menu Principal</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -180,85 +181,85 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.index">
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <h1>🎬 StremioPasteBin</h1>
-                <p class="subtitle">Gestion de l'addon StremioPasteBin</p>
+                <h1 data-i18n="index.title">🎬 StremioPasteBin</h1>
+                <p class="subtitle" data-i18n="index.subtitle">Gestion de l'addon StremioPasteBin</p>
             </div>
-            <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+            <a href="#" class="logout-btn" id="logoutBtn" data-i18n="common.logout">Déconnexion</a>
         </div>
         
         <div class="menu-grid">
             <a href="/add-content.html" class="menu-card add-content">
                 <div class="menu-card-icon">➕</div>
-                <div class="menu-card-title">Ajouter du contenu</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.add.title">Ajouter du contenu</div>
+                <div class="menu-card-description" data-i18n="index.card.add.desc">
                     Ajoutez des films ou séries manuellement en utilisant un ID AllDebrid et un ID TMDB
                 </div>
             </a>
             
             <a href="/manage-content.html" class="menu-card manage-content">
                 <div class="menu-card-icon">📋</div>
-                <div class="menu-card-title">Gérer le contenu</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.manage.title">Gérer le contenu</div>
+                <div class="menu-card-description" data-i18n="index.card.manage.desc">
                     Visualisez, modifiez ou supprimez le contenu personnalisé que vous avez ajouté
                 </div>
             </a>
             
             <a href="/refresh.html" class="menu-card refresh">
                 <div class="menu-card-icon">🔄</div>
-                <div class="menu-card-title">Refresh Catalogue</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.refresh.title">Refresh Catalogue</div>
+                <div class="menu-card-description" data-i18n="index.card.refresh.desc">
                     Mettez à jour le catalogue en parsant les codes Pastebin configurés
                 </div>
             </a>
             
             <a href="/pastebin-manager.html" class="menu-card pastebin-manager">
                 <div class="menu-card-icon">🔗</div>
-                <div class="menu-card-title">Gestion Pastebin</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.pastebin.title">Gestion Pastebin</div>
+                <div class="menu-card-description" data-i18n="index.card.pastebin.desc">
                     Gérez les codes Pastebin utilisés pour le parsing automatique du catalogue
                 </div>
             </a>
             
             <a href="/admin-users.html" class="menu-card" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white;">
                 <div class="menu-card-icon">👥</div>
-                <div class="menu-card-title">Gestion Utilisateurs</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.users.title">Gestion Utilisateurs</div>
+                <div class="menu-card-description" data-i18n="index.card.users.desc">
                     Gérez les utilisateurs et consultez leur activité
                 </div>
             </a>
 
             <a href="/admin-account.html" class="menu-card" style="background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%); color: white;">
                 <div class="menu-card-icon">🛡️</div>
-                <div class="menu-card-title">Compte Admin</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.account.title">Compte Admin</div>
+                <div class="menu-card-description" data-i18n="index.card.account.desc">
                     Changez le login et le mot de passe administrateur
                 </div>
             </a>
 
             <a href="/admin-analytics.html" class="menu-card" style="background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); color: white;">
                 <div class="menu-card-icon">📊</div>
-                <div class="menu-card-title">Indicateurs</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.analytics.title">Indicateurs</div>
+                <div class="menu-card-description" data-i18n="index.card.analytics.desc">
                     Streams par jour et contenus les plus regardés
                 </div>
             </a>
 
             <a href="/admin-reset.html" class="menu-card" style="background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%); color: white;">
                 <div class="menu-card-icon">🗑️</div>
-                <div class="menu-card-title">Réinitialisation</div>
-                <div class="menu-card-description">
+                <div class="menu-card-title" data-i18n="index.card.reset.title">Réinitialisation</div>
+                <div class="menu-card-description" data-i18n="index.card.reset.desc">
                     Vider catalogues, cache, utilisateurs et configuration pastebin/AllDebrid
                 </div>
             </a>
         </div>
         
         <div class="info-section">
-            <h3>ℹ️ À propos</h3>
-            <p>
+            <h3 data-i18n="index.about.title">ℹ️ À propos</h3>
+            <p data-i18n="index.about.text">
                 Cette interface vous permet de gérer votre addon Stremio. Vous pouvez ajouter du contenu personnalisé,
                 gérer les codes Pastebin pour le parsing automatique, et mettre à jour le catalogue.
                 Toutes les modifications sont sauvegardées automatiquement.
@@ -266,12 +267,14 @@
         </div>
         
         <div class="footer">
-            <p>Stremio Addon Server - Accédez facilement à toutes les fonctionnalités</p>
+            <p data-i18n="index.footer">Stremio Addon Server - Accédez facilement à toutes les fonctionnalités</p>
         </div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
-        // Déconnexion
+        I18n.init();
+
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             try {

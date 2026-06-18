@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Pastebin - StremioPasteBin</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -283,42 +284,42 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.pastebin">
     <div class="container">
         <div class="nav-header">
-            <h1>🔗 Configuration Pastebin & AllDebrid</h1>
-            <p class="subtitle">Configurez la clé AllDebrid, l'URL des pastes et les codes à parser</p>
+            <h1 data-i18n="pastebin.title">🔗 Configuration Pastebin & AllDebrid</h1>
+            <p class="subtitle" data-i18n="pastebin.subtitle">Configurez la clé AllDebrid, l'URL des pastes et les codes à parser</p>
             <div class="nav-links">
-                <a href="/" class="nav-link">🏠 Accueil</a>
-                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
-                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
-                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
+                <a href="/" class="nav-link" data-i18n="common.backHome">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link" data-i18n="nav.addContent">➕ Ajouter du contenu</a>
+                <a href="/manage-content.html" class="nav-link" data-i18n="nav.manageContent">📋 Gérer le contenu</a>
+                <a href="/refresh.html" class="nav-link" data-i18n="nav.refresh">🔄 Refresh</a>
             </div>
         </div>
         
-        <div class="info-box">
+        <div class="info-box" data-i18n="pastebin.info" data-i18n-html>
             <strong>💡 Information :</strong> Configurez d'abord la clé API AllDebrid et l'URL de base des pastes (format raw, se terminant par <code>/raw/</code>).
             Ensuite ajoutez les codes pastebin (8 caractères alphanumériques).
         </div>
 
         <div class="settings-section">
-            <h2>⚙️ Paramètres généraux</h2>
+            <h2 data-i18n="pastebin.settingsTitle">⚙️ Paramètres généraux</h2>
             <div class="settings-grid">
                 <div>
-                    <label for="alldebridApiKey">Clé API AllDebrid</label>
-                    <input type="password" id="alldebridApiKey" placeholder="Votre clé API AllDebrid" autocomplete="off">
-                    <div class="settings-hint">Laissez vide pour conserver la clé actuelle. Visible uniquement lors de la saisie.</div>
+                    <label for="alldebridApiKey" data-i18n="pastebin.alldebridKey">Clé API AllDebrid</label>
+                    <input type="password" id="alldebridApiKey" data-i18n-placeholder="pastebin.alldebridPlaceholder" placeholder="Votre clé API AllDebrid" autocomplete="off">
+                    <div class="settings-hint" data-i18n="pastebin.alldebridHint">Laissez vide pour conserver la clé actuelle. Visible uniquement lors de la saisie.</div>
                     <div id="keyStatus" class="key-status"></div>
                 </div>
                 <div>
-                    <label for="pastebinBaseUrl">URL de base Pastebin (raw)</label>
-                    <input type="url" id="pastebinBaseUrl" placeholder="https://paste.example.com/raw/">
-                    <div class="settings-hint">URL vers laquelle le code pastebin est ajouté pour récupérer le contenu brut.</div>
+                    <label for="pastebinBaseUrl" data-i18n="pastebin.baseUrl">URL de base Pastebin (raw)</label>
+                    <input type="url" id="pastebinBaseUrl" data-i18n-placeholder="pastebin.baseUrlPlaceholder" placeholder="https://paste.example.com/raw/">
+                    <div class="settings-hint" data-i18n="pastebin.baseUrlHint">URL vers laquelle le code pastebin est ajouté pour récupérer le contenu brut.</div>
                 </div>
             </div>
         </div>
         
-        <h2 style="font-size: 18px; color: #333; margin-bottom: 16px;">📋 Codes Pastebin</h2>
+        <h2 style="font-size: 18px; color: #333; margin-bottom: 16px;" data-i18n="pastebin.codesTitle">📋 Codes Pastebin</h2>
         
         <div id="status" class="status"></div>
         
@@ -326,22 +327,26 @@
             <input 
                 type="text" 
                 id="newCode" 
+                data-i18n-placeholder="pastebin.codePlaceholder"
                 placeholder="Entrez un code pastebin (ex: F8h3sAzM)" 
                 pattern="[a-zA-Z0-9]{8}"
                 maxlength="8"
                 style="font-family: monospace;"
             >
-            <button onclick="addCode()">➕ Ajouter</button>
+            <button onclick="addCode()" data-i18n="pastebin.addCode">➕ Ajouter</button>
         </div>
         
         <ul id="codesList" class="codes-list"></ul>
         
         <div class="save-section">
-            <button id="saveBtn" class="save-btn" onclick="saveCodes()">💾 Enregistrer les modifications</button>
+            <button id="saveBtn" class="save-btn" onclick="saveCodes()" data-i18n="common.saveChanges">💾 Enregistrer les modifications</button>
         </div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
+        I18n.init();
+
         let codes = [];
         let hasChanges = false;
         let settingsLoaded = false;
@@ -358,15 +363,15 @@
                 currentKeyMasked = settings.alldebridApiKeyMasked || '';
                 const keyStatus = document.getElementById('keyStatus');
                 if (settings.alldebridApiKeyConfigured) {
-                    keyStatus.textContent = `Clé configurée (${currentKeyMasked})`;
+                    keyStatus.textContent = I18n.t('pastebin.keyConfigured', { masked: currentKeyMasked });
                 } else {
-                    keyStatus.textContent = 'Aucune clé configurée';
+                    keyStatus.textContent = I18n.t('pastebin.keyNotConfigured');
                     keyStatus.style.color = '#856404';
                 }
                 settingsLoaded = true;
                 renderCodes();
             } catch (error) {
-                showStatus('Erreur lors du chargement: ' + error.message, 'error');
+                showStatus(I18n.t('pastebin.loadError', { message: error.message }), 'error');
             }
         }
         
@@ -380,7 +385,7 @@
             const list = document.getElementById('codesList');
             
             if (codes.length === 0) {
-                list.innerHTML = '<li class="empty-state">Aucun code ajouté. Ajoutez votre premier code ci-dessus.</li>';
+                list.innerHTML = `<li class="empty-state">${I18n.t('pastebin.emptyCodes')}</li>`;
                 return;
             }
             
@@ -390,7 +395,7 @@
                     <div class="actions">
                         ${index > 0 ? `<button class="btn-move" onclick="moveCode(${index}, -1)">⬆️</button>` : ''}
                         ${index < codes.length - 1 ? `<button class="btn-move" onclick="moveCode(${index}, 1)">⬇️</button>` : ''}
-                        <button class="btn-delete" onclick="deleteCode(${index})">🗑️ Supprimer</button>
+                        <button class="btn-delete" onclick="deleteCode(${index})">${I18n.t('pastebin.deleteCodeBtn')}</button>
                     </div>
                 </li>
             `).join('');
@@ -404,17 +409,17 @@
             const code = input.value.trim();
             
             if (!code) {
-                showStatus('Veuillez entrer un code', 'error');
+                showStatus(I18n.t('pastebin.enterCode'), 'error');
                 return;
             }
             
             if (!/^[a-zA-Z0-9]{8}$/.test(code)) {
-                showStatus('Le code doit contenir exactement 8 caractères alphanumériques (0-9, a-z, A-Z)', 'error');
+                showStatus(I18n.t('pastebin.codeFormat'), 'error');
                 return;
             }
             
             if (codes.includes(code)) {
-                showStatus('Ce code existe déjà dans la liste', 'error');
+                showStatus(I18n.t('pastebin.codeExists'), 'error');
                 return;
             }
             
@@ -422,16 +427,15 @@
             input.value = '';
             hasChanges = true;
             renderCodes();
-            showStatus(`Code ${code} ajouté avec succès`, 'success');
+            showStatus(I18n.t('pastebin.codeAdded', { code }), 'success');
         }
         
-        // Supprimer un code
         function deleteCode(index) {
-            if (confirm(`Êtes-vous sûr de vouloir supprimer le code ${codes[index]} ?`)) {
+            if (confirm(I18n.t('pastebin.deleteCodeConfirm', { code: codes[index] }))) {
                 codes.splice(index, 1);
                 hasChanges = true;
                 renderCodes();
-                showStatus('Code supprimé', 'success');
+                showStatus(I18n.t('pastebin.codeDeleted'), 'success');
             }
         }
         
@@ -451,7 +455,7 @@
         async function saveCodes() {
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.disabled = true;
-            saveBtn.textContent = '⏳ Enregistrement...';
+            saveBtn.textContent = I18n.t('common.saving');
             
             try {
                 const settingsBody = {
@@ -486,15 +490,15 @@
                     hasChanges = false;
                     document.getElementById('alldebridApiKey').value = '';
                     await loadSettings();
-                    showStatus(`✅ Paramètres et ${codes.length} code(s) enregistré(s) ! Pris en compte au prochain refresh.`, 'success');
+                    showStatus(I18n.t('pastebin.saved', { count: codes.length }), 'success');
                 } else {
                     throw new Error(data.message || 'Erreur lors de l\'enregistrement des codes');
                 }
             } catch (error) {
-                showStatus('Erreur lors de l\'enregistrement: ' + error.message, 'error');
+                showStatus(I18n.t('pastebin.saveError', { message: error.message }), 'error');
             } finally {
                 saveBtn.disabled = false;
-                saveBtn.textContent = '💾 Enregistrer les modifications';
+                saveBtn.textContent = I18n.t('common.saveChanges');
                 updateSaveButton();
             }
         }
@@ -536,6 +540,18 @@
         document.getElementById('alldebridApiKey').addEventListener('input', () => {
             hasChanges = true;
             updateSaveButton();
+        });
+
+        document.addEventListener('i18n:languageChanged', () => {
+            if (settingsLoaded) {
+                const keyStatus = document.getElementById('keyStatus');
+                if (currentKeyMasked) {
+                    keyStatus.textContent = I18n.t('pastebin.keyConfigured', { masked: currentKeyMasked });
+                }
+                renderCodes();
+                const saveBtn = document.getElementById('saveBtn');
+                if (!saveBtn.disabled) saveBtn.textContent = I18n.t('common.saveChanges');
+            }
         });
         
         // Charger les codes au chargement de la page

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Indicateurs - StremioPasteBin</title>
+  <link rel="stylesheet" href="/i18n.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -216,13 +217,13 @@
     }
   </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.adminAnalytics">
   <div class="container">
     <div class="header">
-      <h1>📊 Indicateurs</h1>
+      <h1 data-i18n="analytics.title">📊 Indicateurs</h1>
       <div class="header-actions">
-        <a href="/" class="back-btn">← Menu</a>
-        <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+        <a href="/" class="back-btn" data-i18n="analytics.back">← Retour au menu</a>
+        <a href="#" class="logout-btn" id="logoutBtn" data-i18n="common.logout">Déconnexion</a>
       </div>
     </div>
 
@@ -231,7 +232,7 @@
     <div class="grid">
       <div>
         <div class="card">
-          <h2>📅 Streams / jour / utilisateur (empilé)</h2>
+          <h2 data-i18n="analytics.streamsPerDay">📅 Streams / jour / utilisateur (empilé)</h2>
           <div class="toolbar">
             <label class="muted" for="daysSelect">Fenêtre</label>
             <select id="daysSelect">
@@ -253,7 +254,7 @@
         <div style="height: 20px;"></div>
 
         <div class="card">
-          <h2>👤 Streams par personne (total sur la fenêtre)</h2>
+          <h2 data-i18n="analytics.streamsPerUser">👤 Streams par personne (total sur la fenêtre)</h2>
           <div class="muted" style="margin-bottom:10px;">Total des streams sur le mois glissant (ou la fenêtre choisie) par utilisateur.</div>
           <div class="chart-wrap" style="height: 360px;">
             <canvas id="perUserChart"></canvas>
@@ -263,7 +264,7 @@
         <div style="height: 20px;"></div>
 
         <div class="card">
-          <h2>🕒 Dernières connexions (chronologie)</h2>
+          <h2 data-i18n="analytics.lastLogins">🕒 Dernières connexions (chronologie)</h2>
           <div class="muted" style="margin-bottom:10px;">Par utilisateur, date de dernière connexion (utile pour repérer les inactifs).</div>
           <div class="chart-wrap" style="height: 420px;">
             <canvas id="lastLoginChart"></canvas>
@@ -272,16 +273,19 @@
       </div>
 
       <div class="card">
-        <h2>🎬 Top contenus (jaquette + barres)</h2>
+        <h2 data-i18n="analytics.topContent">🎬 Top contenus (jaquette + barres)</h2>
         <div class="muted">Top global sur la fenêtre choisie. La hauteur = nombre de vues (tous users cumulés).</div>
         <div id="topBars" class="bars" aria-label="Top contenus"></div>
       </div>
     </div>
   </div>
 
+  <script src="/i18n.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
   <script>
+    I18n.init();
+
     let chart = null;
     let perUserChart = null;
     let lastLoginChart = null;
@@ -525,7 +529,7 @@
       const days = document.getElementById('daysSelect').value;
       const data = await fetchJson(`/api/admin/analytics?days=${encodeURIComponent(days)}&top=24`);
       if (!data.success) {
-        showError(data.error || 'Erreur lors du chargement');
+        showError(data.error || I18n.t('analytics.loadError'));
         return;
       }
       renderStackedChart(data.streamsPerDay);

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Utilisateurs - StremioPasteBin</title>
+    <link rel="stylesheet" href="/i18n.css">
     <style>
         * {
             margin: 0;
@@ -298,13 +299,13 @@
         }
     </style>
 </head>
-<body>
+<body data-i18n-page-title="pageTitle.adminUsers">
     <div class="container">
         <div class="header">
-            <h1>👥 Gestion des Utilisateurs</h1>
+            <h1 data-i18n="users.title">👥 Gestion des Utilisateurs</h1>
             <div class="header-actions">
-                <a href="/" class="back-btn">← Retour au menu</a>
-                <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+                <a href="/" class="back-btn" data-i18n="common.back">← Retour au menu</a>
+                <a href="#" class="logout-btn" id="logoutBtn" data-i18n="common.logout">Déconnexion</a>
             </div>
         </div>
         
@@ -312,40 +313,40 @@
         <div class="success" id="success"></div>
         
         <div class="add-user-section">
-            <h2>➕ Ajouter un utilisateur</h2>
+            <h2 data-i18n="users.addTitle">➕ Ajouter un utilisateur</h2>
             <form id="addUserForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="newUsername">Nom d'utilisateur</label>
+                        <label for="newUsername" data-i18n="users.username">Nom d'utilisateur</label>
                         <input type="text" id="newUsername" required>
                     </div>
                     <div class="form-group">
-                        <label for="newPassword">Mot de passe</label>
+                        <label for="newPassword" data-i18n="users.password">Mot de passe</label>
                         <input type="password" id="newPassword" required>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn">Ajouter</button>
+                        <button type="submit" class="btn" data-i18n="common.add">Ajouter</button>
                     </div>
                 </div>
             </form>
         </div>
         
         <div>
-            <h2>📋 Liste des utilisateurs</h2>
+            <h2 data-i18n="users.listTitle">📋 Liste des utilisateurs</h2>
             <table class="users-table">
                 <thead>
                     <tr>
-                        <th>Utilisateur</th>
-                        <th>Créé le</th>
-                        <th>Dernière connexion</th>
-                        <th>Utilisations aujourd'hui</th>
-                        <th>Token Stremio</th>
-                        <th>Actions</th>
+                        <th data-i18n="users.colUser">Utilisateur</th>
+                        <th data-i18n="users.colCreated">Créé le</th>
+                        <th data-i18n="users.colLastLogin">Dernière connexion</th>
+                        <th data-i18n="users.colUsage">Utilisations aujourd'hui</th>
+                        <th data-i18n="users.colToken">Token Stremio</th>
+                        <th data-i18n="users.colActions">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="usersTableBody">
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px;">Chargement...</td>
+                        <td colspan="6" style="text-align: center; padding: 20px;" data-i18n="users.loading">Chargement...</td>
                     </tr>
                 </tbody>
             </table>
@@ -363,8 +364,10 @@
         </div>
     </div>
     
+    <script src="/i18n.js"></script>
     <script>
-        // Charger les utilisateurs
+        I18n.init();
+
         async function loadUsers() {
             try {
                 const response = await fetch('/api/admin/users');
@@ -373,12 +376,11 @@
                 const tbody = document.getElementById('usersTableBody');
                 
                 if (data.success && data.users.length > 0) {
-                    const baseUrl = window.location.origin;
                     tbody.innerHTML = data.users.map(user => {
-                        const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleString('fr-FR') : 'N/A';
-                        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString('fr-FR') : 'Jamais';
+                        const createdAt = user.createdAt ? I18n.formatDateTime(user.createdAt) : 'N/A';
+                        const lastLogin = user.lastLogin ? I18n.formatDateTime(user.lastLogin) : I18n.t('common.never');
                         const usageToday = user.usageToday != null ? user.usageToday : 0;
-                        const token = user.stremioToken || 'Non généré';
+                        const token = user.stremioToken || I18n.t('users.tokenNotGenerated');
                         const tokenDisplay = token.length > 20 ? token.substring(0, 20) + '...' : token;
                         
                         return `
@@ -390,21 +392,23 @@
                                 <td><code style="font-size: 11px;">${tokenDisplay}</code></td>
                                 <td>
                                     <div class="user-actions">
-                                        <button class="btn btn-secondary btn-small" onclick="viewUserDetails('${user.username}')">Détails</button>
-                                        <button class="btn btn-secondary btn-small" onclick="editUser('${user.username}')">Modifier</button>
-                                        <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">Supprimer</button>
+                                        <button class="btn btn-secondary btn-small" onclick="viewUserDetails('${user.username}')">${I18n.t('common.details')}</button>
+                                        <button class="btn btn-secondary btn-small" onclick="editUser('${user.username}')">${I18n.t('common.edit')}</button>
+                                        <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">${I18n.t('common.delete')}</button>
                                     </div>
                                 </td>
                             </tr>
                         `;
                     }).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucun utilisateur</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">${I18n.t('users.none')}</td></tr>`;
                 }
             } catch (error) {
-                showError('Erreur lors du chargement des utilisateurs');
+                showError(I18n.t('users.loadError'));
             }
         }
+
+        document.addEventListener('i18n:languageChanged', loadUsers);
         
         // Ajouter un utilisateur
         document.getElementById('addUserForm').addEventListener('submit', async (e) => {
@@ -425,14 +429,14 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showSuccess('Utilisateur créé avec succès !');
+                    showSuccess(I18n.t('users.created'));
                     document.getElementById('addUserForm').reset();
                     loadUsers();
                 } else {
-                    showError(data.error || 'Erreur lors de la création de l\'utilisateur');
+                    showError(data.error || I18n.t('users.createError'));
                 }
             } catch (error) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         });
         
@@ -447,51 +451,50 @@
                     const modalBody = document.getElementById('modalBody');
                     const modalTitle = document.getElementById('modalTitle');
                     
-                    modalTitle.textContent = `Détails - ${user.username}`;
+                    modalTitle.textContent = I18n.t('users.modalTitle', { username: user.username });
                     
                     const baseUrl = window.location.origin;
-                    const token = user.stremioToken || 'Non généré';
-                    const manifestUrl = token !== 'Non généré' ? `${baseUrl}/manifest.json?token=${token}` : 'Token non disponible';
+                    const token = user.stremioToken || I18n.t('users.tokenNotGenerated');
+                    const manifestUrl = user.stremioToken ? `${baseUrl}/manifest.json?token=${token}` : I18n.t('users.tokenUnavailable');
                     
                     const usageToday = user.usageToday != null ? user.usageToday : 0;
                     modalBody.innerHTML = `
                         <div>
-                            <h3 style="margin-bottom: 15px; color: #333;">Informations générales</h3>
-                            <p><strong>Créé le:</strong> ${user.createdAt ? new Date(user.createdAt).toLocaleString('fr-FR') : 'N/A'}</p>
-                            <p><strong>Dernière connexion:</strong> ${user.lastLogin ? new Date(user.lastLogin).toLocaleString('fr-FR') : 'Jamais'}</p>
-                            <p><strong>Utilisations aujourd'hui:</strong> ${usageToday} (contenus différents consultés ce jour, reprises et autres liens = 1 par contenu)</p>
+                            <h3 style="margin-bottom: 15px; color: #333;">${I18n.t('users.generalInfo')}</h3>
+                            <p><strong>${I18n.t('users.createdAt')}</strong> ${user.createdAt ? I18n.formatDateTime(user.createdAt) : 'N/A'}</p>
+                            <p><strong>${I18n.t('users.lastLogin')}</strong> ${user.lastLogin ? I18n.formatDateTime(user.lastLogin) : I18n.t('common.never')}</p>
+                            <p><strong>${I18n.t('users.usageToday')}</strong> ${usageToday} ${I18n.t('users.usageTodayDesc')}</p>
                         </div>
                         
                         <div style="margin-top: 25px;">
-                            <h3 style="margin-bottom: 15px; color: #333;">Token Stremio</h3>
+                            <h3 style="margin-bottom: 15px; color: #333;">${I18n.t('users.stremioToken')}</h3>
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 10px;">
-                                <p style="margin-bottom: 8px;"><strong>Token:</strong></p>
+                                <p style="margin-bottom: 8px;"><strong>${I18n.t('users.token')}</strong></p>
                                 <code style="font-size: 12px; word-break: break-all; display: block; background: white; padding: 8px; border-radius: 4px;">${token}</code>
                             </div>
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
-                                <p style="margin-bottom: 8px;"><strong>URL Manifest Stremio:</strong></p>
+                                <p style="margin-bottom: 8px;"><strong>${I18n.t('users.manifestUrl')}</strong></p>
                                 <code style="font-size: 11px; word-break: break-all; display: block; background: white; padding: 8px; border-radius: 4px;">${manifestUrl}</code>
-                                <button class="btn btn-secondary btn-small" style="margin-top: 10px;" onclick="copyToClipboard('${manifestUrl}')">📋 Copier l'URL</button>
+                                <button class="btn btn-secondary btn-small" style="margin-top: 10px;" onclick="copyToClipboard('${manifestUrl}')">${I18n.t('users.copyUrl')}</button>
                             </div>
                         </div>
                     `;
                     
                     document.getElementById('userModal').classList.add('show');
                 } else {
-                    showError(data.error || 'Erreur lors du chargement des détails');
+                    showError(data.error || I18n.t('users.detailsLoadError'));
                 }
             } catch (error) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         }
         
-        // Modifier un utilisateur
         async function editUser(username) {
-            const newPassword = prompt(`Changer le mot de passe pour ${username}:`);
+            const newPassword = prompt(I18n.t('users.changePasswordPrompt', { username }));
             if (!newPassword) return;
             
             if (newPassword.length < 3) {
-                showError('Le mot de passe doit contenir au moins 3 caractères');
+                showError(I18n.t('users.passwordMin'));
                 return;
             }
             
@@ -507,18 +510,17 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showSuccess('Mot de passe modifié avec succès !');
+                    showSuccess(I18n.t('users.passwordChanged'));
                 } else {
-                    showError(data.error || 'Erreur lors de la modification');
+                    showError(data.error || I18n.t('users.updateError'));
                 }
             } catch (error) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         }
         
-        // Supprimer un utilisateur
         async function deleteUser(username) {
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${username}" ?\n\nCette action est irréversible.`)) {
+            if (!confirm(I18n.t('users.deleteConfirmFull', { username }))) {
                 return;
             }
             
@@ -530,13 +532,13 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showSuccess('Utilisateur supprimé avec succès !');
+                    showSuccess(I18n.t('users.deleted'));
                     loadUsers();
                 } else {
-                    showError(data.error || 'Erreur lors de la suppression');
+                    showError(data.error || I18n.t('users.deleteError'));
                 }
             } catch (error) {
-                showError('Erreur de connexion au serveur');
+                showError(I18n.t('common.errorServer'));
             }
         }
         
@@ -570,9 +572,9 @@
         // Fonction pour copier dans le presse-papiers
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                showSuccess('URL copiée dans le presse-papiers !');
+                showSuccess(I18n.t('users.urlCopied'));
             }).catch(() => {
-                showError('Impossible de copier l\'URL');
+                showError(I18n.t('users.copyUrlFail'));
             });
         }
         
