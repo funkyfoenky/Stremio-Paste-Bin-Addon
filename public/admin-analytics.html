@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indicateurs - StremioPasteBin</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 32px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+      gap: 16px;
+    }
+    h1 { color: #333; font-size: 28px; }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    .back-btn, .logout-btn {
+      padding: 8px 16px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .back-btn { background: #667eea; }
+    .back-btn:hover { background: #5568d3; }
+    .logout-btn { background: #f5576c; }
+    .logout-btn:hover { background: #e0455a; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+    @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 18px;
+      background: #fff;
+    }
+    .card h2 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .muted { color: #666; font-size: 13px; line-height: 1.5; }
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    .error.show { display: block; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    select, button.small {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 14px;
+    }
+    button.small {
+      cursor: pointer;
+      border: none;
+      background: #6c757d;
+      color: #fff;
+    }
+    button.small:hover { background: #5a6268; }
+
+    .chart-wrap {
+      position: relative;
+      height: 420px;
+      width: 100%;
+    }
+    @media (max-width: 1100px) {
+      .chart-wrap { height: 360px; }
+    }
+
+    .legend {
+      margin-top: 12px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+      max-height: 140px;
+      overflow: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #333;
+      white-space: nowrap;
+      max-width: 220px;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex: 0 0 auto;
+    }
+
+    /* Bar chart "contenus" (HTML/CSS) */
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: 14px;
+      align-items: start;
+      margin-top: 8px;
+      /* Laisse de la place aux jaquettes quand certaines barres sont hautes */
+      padding-top: 110px;
+      position: relative;
+      z-index: 1;
+    }
+    .bar-col {
+      display: grid;
+      grid-template-rows: 240px 2.4em;
+      justify-items: center;
+      align-items: start;
+      gap: 12px;
+      min-width: 70px;
+    }
+    .poster {
+      width: 60px;
+      height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #f3f3f3;
+      border: 1px solid #eee;
+    }
+    .bar {
+      width: 56px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(102,126,234,0.95) 0%, rgba(118,75,162,0.95) 100%);
+      box-shadow: 0 6px 18px rgba(102,126,234,0.25);
+      position: relative;
+      transition: height 0.2s;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 6px;
+      min-height: 8px;
+    }
+    .bar-area {
+      height: 240px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 100%;
+      position: relative;
+    }
+    .bar-area .poster {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(var(--barH, 10px) + 10px);
+    }
+    .bar span {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    }
+    .title {
+      max-width: 76px;
+      font-size: 11px;
+      color: #444;
+      text-align: center;
+      line-height: 1.2;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      height: 2.4em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Indicateurs</h1>
+      <div class="header-actions">
+        <a href="/" class="back-btn">← Menu</a>
+        <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+      </div>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>📅 Streams / jour / utilisateur (empilé)</h2>
+          <div class="toolbar">
+            <label class="muted" for="daysSelect">Fenêtre</label>
+            <select id="daysSelect">
+              <option value="7">7 jours</option>
+              <option value="14">14 jours</option>
+              <option value="31" selected>31 jours</option>
+            </select>
+            <button class="small" id="refreshBtn">Rafraîchir</button>
+          </div>
+          <div class="muted" style="margin-bottom:10px;">
+            1 “stream” = 1 contenu unique consulté par jour (d’après `dailyViews`).
+          </div>
+          <div class="chart-wrap">
+            <canvas id="stackedChart"></canvas>
+          </div>
+          <div id="legend" class="legend" aria-label="Légende utilisateurs"></div>
+        </div>
+
+        <div style="height: 20px;"></div>
+
+        <div class="card">
+          <h2>👤 Streams par personne (total sur la fenêtre)</h2>
+          <div class="muted" style="margin-bottom:10px;">Total des streams sur le mois glissant (ou la fenêtre choisie) par utilisateur.</div>
+          <div class="chart-wrap" style="height: 360px;">
+            <canvas id="perUserChart"></canvas>
+          </div>
+        </div>
+
+        <div style="height: 20px;"></div>
+
+        <div class="card">
+          <h2>🕒 Dernières connexions (chronologie)</h2>
+          <div class="muted" style="margin-bottom:10px;">Par utilisateur, date de dernière connexion (utile pour repérer les inactifs).</div>
+          <div class="chart-wrap" style="height: 420px;">
+            <canvas id="lastLoginChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🎬 Top contenus (jaquette + barres)</h2>
+        <div class="muted">Top global sur la fenêtre choisie. La hauteur = nombre de vues (tous users cumulés).</div>
+        <div id="topBars" class="bars" aria-label="Top contenus"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script>
+    let chart = null;
+    let perUserChart = null;
+    let lastLoginChart = null;
+
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+    function clearError() {
+      const el = document.getElementById('error');
+      el.textContent = '';
+      el.classList.remove('show');
+    }
+
+    function shortenDayLabel(day) {
+      // YYYY-MM-DD -> DD/MM
+      const parts = String(day).split('-');
+      if (parts.length !== 3) return day;
+      return `${parts[2]}/${parts[1]}`;
+    }
+
+    function renderTopBars(items) {
+      const root = document.getElementById('topBars');
+      root.innerHTML = '';
+      if (!items || items.length === 0) {
+        root.innerHTML = '<div class="muted">Aucune donnée.</div>';
+        return;
+      }
+      const max = Math.max(...items.map(x => x.count || 0), 1);
+      const maxHeight = 220; // px
+
+      for (const it of items) {
+        const col = document.createElement('div');
+        col.className = 'bar-col';
+        col.title = `${it.title || it.contentId} — ${it.count || 0}`;
+
+        const barArea = document.createElement('div');
+        barArea.className = 'bar-area';
+
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        const h = Math.round((Math.max(it.count || 0, 0) / max) * maxHeight);
+        const barH = Math.max(h, 10);
+        bar.style.height = `${barH}px`;
+        barArea.style.setProperty('--barH', `${barH}px`);
+        const label = document.createElement('span');
+        label.textContent = String(it.count || 0);
+        bar.appendChild(label);
+        barArea.appendChild(bar);
+
+        const img = document.createElement('img');
+        img.className = 'poster';
+        img.alt = it.title || it.contentId || 'Contenu';
+        if (it.poster) img.src = it.poster;
+        barArea.appendChild(img);
+
+        col.appendChild(barArea);
+
+        const t = document.createElement('div');
+        t.className = 'title';
+        t.textContent = it.title || it.contentId || '';
+        col.appendChild(t);
+
+        root.appendChild(col);
+      }
+    }
+
+    function renderStackedChart(streamsPerDay) {
+      const ctx = document.getElementById('stackedChart');
+      const labels = (streamsPerDay.labels || []).map(shortenDayLabel);
+      const datasets = streamsPerDay.datasets || [];
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          resizeDelay: 200,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+
+      renderLegend(datasets);
+    }
+
+    function renderPerUserChart(streamsPerDay) {
+      const ctx = document.getElementById('perUserChart');
+      const datasets = streamsPerDay.datasets || [];
+      const labels = datasets.map(d => d.label || '');
+      const totals = datasets.map(d => (d.data || []).reduce((a, b) => a + (Number(b) || 0), 0));
+      const colors = datasets.map(d => d.backgroundColor || 'rgba(102,126,234,0.75)');
+      const borderColors = datasets.map(d => d.borderColor || 'rgba(102,126,234,1)');
+
+      if (perUserChart) perUserChart.destroy();
+      perUserChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Streams',
+            data: totals,
+            backgroundColor: colors,
+            borderColor: borderColors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          resizeDelay: 200,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { ticks: { autoSkip: false, maxRotation: 0 } },
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    function formatDate(iso) {
+      if (!iso) return 'Jamais';
+      try {
+        return new Date(iso).toLocaleDateString('fr-FR');
+      } catch (e) {
+        return String(iso);
+      }
+    }
+
+    function renderLastLoginChart(lastLogins) {
+      const ctx = document.getElementById('lastLoginChart');
+      const items = Array.isArray(lastLogins) ? lastLogins.slice() : [];
+
+      items.sort((a, b) => {
+        const ta = a?.lastLogin ? Date.parse(a.lastLogin) : 0;
+        const tb = b?.lastLogin ? Date.parse(b.lastLogin) : 0;
+        return tb - ta;
+      });
+
+      const labels = items.map(x => x.username);
+      const rawDates = items.map(x => x.lastLogin || null);
+      const values = rawDates.map(d => d ? Date.parse(d) : 0);
+      const max = Math.max(...values, Date.now());
+      const minNonZero = values.filter(v => v > 0).sort((a, b) => a - b)[0] || (Date.now() - 31 * 24 * 3600 * 1000);
+      const now = Date.now();
+      const INACTIVE_MS = 60 * 24 * 3600 * 1000; // ~2 mois
+      const isInactive = (ms) => !ms || (now - ms) > INACTIVE_MS;
+      const bg = values.map(v => isInactive(v) ? 'rgba(245, 87, 108, 0.75)' : 'rgba(79, 172, 254, 0.65)');
+      const border = values.map(v => isInactive(v) ? 'rgba(245, 87, 108, 1)' : 'rgba(79, 172, 254, 1)');
+
+      if (lastLoginChart) lastLoginChart.destroy();
+      lastLoginChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Dernière connexion',
+            data: values,
+            rawDates,
+            backgroundColor: bg,
+            borderColor: border,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          resizeDelay: 200,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => formatDate(rawDates[ctx.dataIndex])
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              min: Math.min(minNonZero, Date.now() - 31 * 24 * 3600 * 1000),
+              max,
+              time: { unit: 'month' },
+              ticks: {
+                callback: (v) => {
+                  if (!v) return '';
+                  try { return new Date(v).toLocaleDateString('fr-FR', { month: 'long' }); } catch (e) { return ''; }
+                },
+                autoSkip: true,
+                maxTicksLimit: 12
+              },
+              grid: { color: 'rgba(0,0,0,0.06)' }
+            },
+            y: { ticks: { autoSkip: false } }
+          }
+        },
+        plugins: []
+      });
+    }
+
+    function renderLegend(datasets) {
+      const root = document.getElementById('legend');
+      root.innerHTML = '';
+      if (!datasets || datasets.length === 0) return;
+      for (const ds of datasets) {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        const swatch = document.createElement('span');
+        swatch.className = 'legend-swatch';
+        swatch.style.background = ds.backgroundColor || '#667eea';
+        item.appendChild(swatch);
+        const label = document.createElement('span');
+        label.textContent = ds.label || '';
+        item.appendChild(label);
+        root.appendChild(item);
+      }
+    }
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) return await res.json();
+      const text = await res.text();
+      return { success: false, error: text || `Erreur HTTP ${res.status}` };
+    }
+
+    async function load() {
+      clearError();
+      const days = document.getElementById('daysSelect').value;
+      const data = await fetchJson(`/api/admin/analytics?days=${encodeURIComponent(days)}&top=24`);
+      if (!data.success) {
+        showError(data.error || 'Erreur lors du chargement');
+        return;
+      }
+      renderStackedChart(data.streamsPerDay);
+      renderPerUserChart(data.streamsPerDay);
+      renderLastLoginChart(data.lastLogins);
+      renderTopBars(data.topContents);
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', load);
+    document.getElementById('daysSelect').addEventListener('change', load);
+
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      try { await fetch('/api/logout', { method: 'POST' }); } catch (e) {}
+      window.location.href = '/login.html';
+    });
+
+    load();
+  </script>
+</body>
+</html>
+

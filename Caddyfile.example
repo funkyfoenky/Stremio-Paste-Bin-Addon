@@ -1,0 +1,24 @@
+# Exemple de configuration Caddy pour exposer StremioPasteBin en HTTPS.
+# Copiez ce fichier vers /etc/caddy/Caddyfile (ou incluez-le) et adaptez le domaine.
+
+stremio-pastebin.example.com {
+    reverse_proxy localhost:7011
+
+    # Headers utiles derrière un reverse proxy
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer-when-downgrade
+    }
+
+    # Logs (optionnel)
+    log {
+        output file /var/log/caddy/stremio-pastebin.log
+    }
+}
+
+# Après modification :
+#   sudo systemctl reload caddy
+#
+# Pensez à définir BASE_URL=https://stremio-pastebin.example.com dans votre .env
+# pour que le manifest Stremio utilise la bonne URL publique.

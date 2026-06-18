@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer le contenu personnalisé - Stremio Addon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .content-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .content-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            transition: background 0.3s;
+        }
+        
+        .content-item:hover {
+            background: #e9ecef;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .content-info {
+            flex: 1;
+        }
+        
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .content-details {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .content-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .content-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .seasons-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .seasons-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .seasons-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .season-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+        
+        .season-number {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .season-episodes {
+            color: #666;
+        }
+        
+        .btn-season-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-season-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn-update {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-update:hover {
+            background: #0056b3;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #0d47a1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-movie {
+            background: #28a745;
+            color: white;
+        }
+        
+        .badge-series {
+            background: #007bff;
+            color: white;
+        }
+        
+        .nav-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: #f0f0f0;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <h1>📋 Gérer le contenu personnalisé</h1>
+            <p class="subtitle">Visualisez, modifiez ou supprimez le contenu que vous avez ajouté manuellement</p>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
+                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
+                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 Information :</strong> Cette page affiche uniquement le contenu ajouté via l'endpoint d'ajout manuel (catalogue "Contenu personnalisé"). 
+            Le contenu parsé depuis les codes pastebin n'est pas affiché ici.
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Chargement du contenu...</p>
+        </div>
+        
+        <div id="contentList" class="content-list" style="display: none;"></div>
+    </div>
+    
+    <script>
+        let customContent = [];
+        
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+        
+        // Charger le contenu personnalisé
+        async function loadContent() {
+            try {
+                const response = await fetch('/api/custom-content');
+                const data = await response.json();
+                
+                if (data.success) {
+                    customContent = data.content || [];
+                    renderContent();
+                } else {
+                    showStatus('Erreur lors du chargement: ' + (data.error || 'Erreur inconnue'), 'error');
+                }
+            } catch (error) {
+                showStatus('Erreur lors du chargement: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('contentList').style.display = 'grid';
+            }
+        }
+        
+        // Afficher le contenu
+        function renderContent() {
+            const list = document.getElementById('contentList');
+            
+            if (customContent.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>Aucun contenu personnalisé</h3>
+                        <p>Vous n'avez pas encore ajouté de contenu personnalisé.</p>
+                        <p style="margin-top: 20px;">
+                            <a href="/add-content.html" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                                ➕ Ajouter du contenu
+                            </a>
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = customContent.map((item, index) => {
+                const typeBadge = item.type === 'movie' ? 'badge-movie' : 'badge-series';
+                const typeLabel = item.type === 'movie' ? 'Film' : 'Série';
+                const filesCount = item.filesCount || (item.type === 'movie' ? item.allDebridIds?.length || 0 : 1);
+                const safeName = escapeHtml(item.name);
+                
+                // Générer la section des saisons pour les séries
+                let seasonsSection = '';
+                if (item.type === 'series' && item.seasons && item.seasons.length > 0) {
+                    seasonsSection = `
+                        <div class="seasons-section">
+                            <div class="seasons-title">📺 Saisons (${item.seasons.length}) :</div>
+                            <div class="seasons-list">
+                                ${item.seasons.map(season => `
+                                    <div class="season-item">
+                                        <span class="season-number">Saison ${season.number}</span>
+                                        <span class="season-episodes">(${season.episodesCount} épisode${season.episodesCount > 1 ? 's' : ''})</span>
+                                        <button type="button" class="btn-season-delete" data-action="delete-season" data-index="${index}" data-season="${season.number}">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="content-item">
+                        <div class="content-header">
+                            <div class="content-info">
+                                <div class="content-title">
+                                    <span class="badge ${typeBadge}">${typeLabel}</span>
+                                    ${safeName}
+                                </div>
+                                <div class="content-details">
+                                    <span>🎬 TMDB ID: ${escapeHtml(item.tmdbId)}</span>
+                                    <span>📅 Année: ${escapeHtml(item.year || 'N/A')}</span>
+                                    <span>📁 ${item.type === 'movie' ? 'Fichiers' : 'Épisodes'}: ${filesCount}</span>
+                                </div>
+                            </div>
+                            <div class="content-actions">
+                                <button type="button" class="btn btn-delete" data-action="delete-content" data-index="${index}">
+                                    🗑️ Supprimer ${item.type === 'movie' ? 'le film' : 'la série'}
+                                </button>
+                            </div>
+                        </div>
+                        ${seasonsSection}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        document.getElementById('contentList').addEventListener('click', (event) => {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+            
+            const index = parseInt(button.dataset.index, 10);
+            const item = customContent[index];
+            if (!item) return;
+            
+            if (button.dataset.action === 'delete-content') {
+                deleteContent(item.tmdbId, item.name, item.type);
+            } else if (button.dataset.action === 'delete-season') {
+                const seasonNumber = parseInt(button.dataset.season, 10);
+                const season = item.seasons?.find(s => s.number === seasonNumber);
+                deleteSeason(item.tmdbId, item.name, seasonNumber, season?.episodesCount || 0);
+            }
+        });
+        
+        // Supprimer un contenu (film ou série complète)
+        async function deleteContent(tmdbId, name, type) {
+            const typeLabel = type === 'movie' ? 'le film' : 'la série';
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer ${typeLabel} "${name}" (TMDB: ${tmdbId}) ?\n\nCette action est irréversible et supprimera ${type === 'series' ? 'toutes les saisons' : 'tous les fichiers'}.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/custom-content/${tmdbId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(`✅ "${name}" a été supprimé${type === 'movie' ? '' : 'e'} avec succès`, 'success');
+                    // Recharger la liste
+                    await loadContent();
+                } else {
+                    throw new Error(data.error || 'Erreur lors de la suppression');
+                }
+            } catch (error) {
+                showStatus('Erreur lors de la suppression: ' + error.message, 'error');
+            }
+        }
+        
+        // Supprimer une saison spécifique
+        async function deleteSeason(tmdbId, seriesName, seasonNumber, episodesCount) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer la saison ${seasonNumber} de "${seriesName}" ?\n\nCette action supprimera ${episodesCount} épisode${episodesCount > 1 ? 's' : ''} et est irréversible.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/custom-content/${tmdbId}/season/${seasonNumber}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.seriesDeleted) {
+                        showStatus(`✅ La saison ${seasonNumber} et la série "${seriesName}" ont été supprimées (plus de saisons)`, 'success');
+                    } else {
+                        showStatus(`✅ La saison ${seasonNumber} de "${seriesName}" a été supprimée avec succès`, 'success');
+                    }
+                    // Recharger la liste
+                    await loadContent();
+                } else {
+                    throw new Error(data.error || 'Erreur lors de la suppression');
+                }
+            } catch (error) {
+                showStatus('Erreur lors de la suppression: ' + error.message, 'error');
+            }
+        }
+        
+        // Afficher un message de statut
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Charger le contenu au démarrage
+        loadContent();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Stremio - StremioPasteBin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .user-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .logout-btn:hover {
+            background: #e0455a;
+        }
+        
+        .token-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .token-section h2 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .token-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 18px;
+            word-break: break-all;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+        }
+        
+        .url-display {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 2;
+            color: #666;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .success.show {
+            display: block;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .info-box strong {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🎬 Configuration Stremio</h1>
+                <p class="user-info" id="userInfo">Chargement...</p>
+            </div>
+            <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+        </div>
+        
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+        
+        <div class="token-section">
+            <h2>🔑 Votre Token Stremio</h2>
+            <div class="token-display" id="tokenDisplay">Chargement...</div>
+            <div class="url-display" id="urlDisplay">Chargement...</div>
+            <div>
+                <button class="btn" onclick="copyToken()">📋 Copier le token</button>
+                <button class="btn" onclick="copyUrl()">🔗 Copier l'URL complète</button>
+                <button class="btn btn-secondary" onclick="regenerateToken()">🔄 Régénérer le token</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 Comment configurer Stremio :</h3>
+            <ol>
+                <li>Ouvrez Stremio sur votre appareil</li>
+                <li>Allez dans <strong>Addons</strong> → <strong>Addon Store</strong> → <strong>Add addon manually</strong></li>
+                <li>Collez l'URL complète ci-dessus (ou copiez-la avec le bouton)</li>
+                <li>Cliquez sur <strong>Add</strong></li>
+                <li>C'est tout ! Votre addon est maintenant configuré avec votre identifiant unique</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let currentToken = null;
+        let baseUrl = '';
+        
+        // Charger les informations de l'utilisateur
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/me');
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    document.getElementById('userInfo').textContent = `Connecté en tant que: ${currentUser.username}`;
+                    
+                    // Obtenir l'URL de base
+                    baseUrl = window.location.origin;
+                    
+                    // Charger le token Stremio
+                    await loadStremioToken();
+                } else {
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                window.location.href = '/login.html';
+            }
+        }
+        
+        // Charger le token Stremio
+        async function loadStremioToken() {
+            try {
+                const response = await fetch('/api/stremio-token');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentToken = data.token;
+                    document.getElementById('tokenDisplay').textContent = currentToken;
+                    document.getElementById('urlDisplay').textContent = `${baseUrl}/manifest.json?token=${currentToken}`;
+                } else {
+                    showError(data.error || 'Erreur lors du chargement du token');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        // Copier le token
+        function copyToken() {
+            if (currentToken) {
+                navigator.clipboard.writeText(currentToken).then(() => {
+                    showSuccess('Token copié dans le presse-papiers !');
+                }).catch(() => {
+                    showError('Impossible de copier le token');
+                });
+            }
+        }
+        
+        // Copier l'URL complète
+        function copyUrl() {
+            const url = `${baseUrl}/manifest.json?token=${currentToken}`;
+            navigator.clipboard.writeText(url).then(() => {
+                showSuccess('URL copiée dans le presse-papiers ! Vous pouvez maintenant l\'ajouter dans Stremio.');
+            }).catch(() => {
+                showError('Impossible de copier l\'URL');
+            });
+        }
+        
+        // Régénérer le token
+        async function regenerateToken() {
+            if (!confirm('Êtes-vous sûr de vouloir régénérer votre token ?\n\nVous devrez reconfigurer Stremio avec le nouveau token.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/stremio-token/regenerate', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentToken = data.token;
+                    document.getElementById('tokenDisplay').textContent = currentToken;
+                    document.getElementById('urlDisplay').textContent = `${baseUrl}/manifest.json?token=${currentToken}`;
+                    showSuccess('Token régénéré avec succès ! N\'oubliez pas de mettre à jour Stremio avec la nouvelle URL.');
+                } else {
+                    showError(data.error || 'Erreur lors de la régénération du token');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        // Déconnexion
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                window.location.href = '/login.html';
+            }
+        });
+        
+        // Fonctions d'affichage des messages
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            setTimeout(() => successDiv.classList.remove('show'), 5000);
+        }
+        
+        // Initialisation
+        loadUserInfo();
+    </script>
+</body>
+</html>

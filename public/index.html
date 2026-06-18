@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StremioPasteBin - Menu Principal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            position: absolute;
+            right: 0;
+        }
+        
+        .logout-btn:hover {
+            background: #e0455a;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .menu-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 2px solid transparent;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+        
+        .menu-card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .menu-card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .menu-card-description {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        
+        .menu-card.add-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .menu-card.add-content .menu-card-title,
+        .menu-card.add-content .menu-card-description {
+            color: white;
+        }
+        
+        .menu-card.manage-content {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .menu-card.manage-content .menu-card-title,
+        .menu-card.manage-content .menu-card-description {
+            color: white;
+        }
+        
+        .menu-card.refresh {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .menu-card.refresh .menu-card-title,
+        .menu-card.refresh .menu-card-description {
+            color: white;
+        }
+        
+        .menu-card.pastebin-manager {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
+        .menu-card.pastebin-manager .menu-card-title,
+        .menu-card.pastebin-manager .menu-card-description {
+            color: white;
+        }
+        
+        .info-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .info-section p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🎬 StremioPasteBin</h1>
+                <p class="subtitle">Gestion de l'addon StremioPasteBin</p>
+            </div>
+            <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+        </div>
+        
+        <div class="menu-grid">
+            <a href="/add-content.html" class="menu-card add-content">
+                <div class="menu-card-icon">➕</div>
+                <div class="menu-card-title">Ajouter du contenu</div>
+                <div class="menu-card-description">
+                    Ajoutez des films ou séries manuellement en utilisant un ID AllDebrid et un ID TMDB
+                </div>
+            </a>
+            
+            <a href="/manage-content.html" class="menu-card manage-content">
+                <div class="menu-card-icon">📋</div>
+                <div class="menu-card-title">Gérer le contenu</div>
+                <div class="menu-card-description">
+                    Visualisez, modifiez ou supprimez le contenu personnalisé que vous avez ajouté
+                </div>
+            </a>
+            
+            <a href="/refresh.html" class="menu-card refresh">
+                <div class="menu-card-icon">🔄</div>
+                <div class="menu-card-title">Refresh Catalogue</div>
+                <div class="menu-card-description">
+                    Mettez à jour le catalogue en parsant les codes Pastebin configurés
+                </div>
+            </a>
+            
+            <a href="/pastebin-manager.html" class="menu-card pastebin-manager">
+                <div class="menu-card-icon">🔗</div>
+                <div class="menu-card-title">Gestion Pastebin</div>
+                <div class="menu-card-description">
+                    Gérez les codes Pastebin utilisés pour le parsing automatique du catalogue
+                </div>
+            </a>
+            
+            <a href="/admin-users.html" class="menu-card" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white;">
+                <div class="menu-card-icon">👥</div>
+                <div class="menu-card-title">Gestion Utilisateurs</div>
+                <div class="menu-card-description">
+                    Gérez les utilisateurs et consultez leur activité
+                </div>
+            </a>
+
+            <a href="/admin-account.html" class="menu-card" style="background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%); color: white;">
+                <div class="menu-card-icon">🛡️</div>
+                <div class="menu-card-title">Compte Admin</div>
+                <div class="menu-card-description">
+                    Changez le login et le mot de passe administrateur
+                </div>
+            </a>
+
+            <a href="/admin-analytics.html" class="menu-card" style="background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%); color: white;">
+                <div class="menu-card-icon">📊</div>
+                <div class="menu-card-title">Indicateurs</div>
+                <div class="menu-card-description">
+                    Streams par jour et contenus les plus regardés
+                </div>
+            </a>
+
+            <a href="/admin-reset.html" class="menu-card" style="background: linear-gradient(135deg, #cb2d3e 0%, #ef473a 100%); color: white;">
+                <div class="menu-card-icon">🗑️</div>
+                <div class="menu-card-title">Réinitialisation</div>
+                <div class="menu-card-description">
+                    Vider catalogues, cache, utilisateurs et configuration pastebin/AllDebrid
+                </div>
+            </a>
+        </div>
+        
+        <div class="info-section">
+            <h3>ℹ️ À propos</h3>
+            <p>
+                Cette interface vous permet de gérer votre addon Stremio. Vous pouvez ajouter du contenu personnalisé,
+                gérer les codes Pastebin pour le parsing automatique, et mettre à jour le catalogue.
+                Toutes les modifications sont sauvegardées automatiquement.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Stremio Addon Server - Accédez facilement à toutes les fonctionnalités</p>
+        </div>
+    </div>
+    
+    <script>
+        // Déconnexion
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+</body>
+</html>
+

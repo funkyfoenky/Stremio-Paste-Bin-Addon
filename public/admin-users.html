@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs - StremioPasteBin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .back-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .logout-btn:hover {
+            background: #e0455a;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .add-user-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .add-user-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #f5576c;
+        }
+        
+        .btn-danger:hover {
+            background: #e0455a;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .users-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .users-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .success.show {
+            display: block;
+        }
+        
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .activity-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .activity-item strong {
+            color: #667eea;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Gestion des Utilisateurs</h1>
+            <div class="header-actions">
+                <a href="/" class="back-btn">← Retour au menu</a>
+                <a href="#" class="logout-btn" id="logoutBtn">Déconnexion</a>
+            </div>
+        </div>
+        
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+        
+        <div class="add-user-section">
+            <h2>➕ Ajouter un utilisateur</h2>
+            <form id="addUserForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newUsername">Nom d'utilisateur</label>
+                        <input type="text" id="newUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Mot de passe</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Ajouter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div>
+            <h2>📋 Liste des utilisateurs</h2>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Créé le</th>
+                        <th>Dernière connexion</th>
+                        <th>Utilisations aujourd'hui</th>
+                        <th>Token Stremio</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">Chargement...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal pour les détails utilisateur -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Détails utilisateur</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Charger les utilisateurs
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('usersTableBody');
+                
+                if (data.success && data.users.length > 0) {
+                    const baseUrl = window.location.origin;
+                    tbody.innerHTML = data.users.map(user => {
+                        const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleString('fr-FR') : 'N/A';
+                        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString('fr-FR') : 'Jamais';
+                        const usageToday = user.usageToday != null ? user.usageToday : 0;
+                        const token = user.stremioToken || 'Non généré';
+                        const tokenDisplay = token.length > 20 ? token.substring(0, 20) + '...' : token;
+                        
+                        return `
+                            <tr>
+                                <td><strong>${user.username}</strong></td>
+                                <td>${createdAt}</td>
+                                <td>${lastLogin}</td>
+                                <td>${usageToday}</td>
+                                <td><code style="font-size: 11px;">${tokenDisplay}</code></td>
+                                <td>
+                                    <div class="user-actions">
+                                        <button class="btn btn-secondary btn-small" onclick="viewUserDetails('${user.username}')">Détails</button>
+                                        <button class="btn btn-secondary btn-small" onclick="editUser('${user.username}')">Modifier</button>
+                                        <button class="btn btn-danger btn-small" onclick="deleteUser('${user.username}')">Supprimer</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucun utilisateur</td></tr>';
+                }
+            } catch (error) {
+                showError('Erreur lors du chargement des utilisateurs');
+            }
+        }
+        
+        // Ajouter un utilisateur
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Utilisateur créé avec succès !');
+                    document.getElementById('addUserForm').reset();
+                    loadUsers();
+                } else {
+                    showError(data.error || 'Erreur lors de la création de l\'utilisateur');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        });
+        
+        // Voir les détails d'un utilisateur
+        async function viewUserDetails(username) {
+            try {
+                const response = await fetch(`/api/admin/users/${username}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    const modalBody = document.getElementById('modalBody');
+                    const modalTitle = document.getElementById('modalTitle');
+                    
+                    modalTitle.textContent = `Détails - ${user.username}`;
+                    
+                    const baseUrl = window.location.origin;
+                    const token = user.stremioToken || 'Non généré';
+                    const manifestUrl = token !== 'Non généré' ? `${baseUrl}/manifest.json?token=${token}` : 'Token non disponible';
+                    
+                    const usageToday = user.usageToday != null ? user.usageToday : 0;
+                    modalBody.innerHTML = `
+                        <div>
+                            <h3 style="margin-bottom: 15px; color: #333;">Informations générales</h3>
+                            <p><strong>Créé le:</strong> ${user.createdAt ? new Date(user.createdAt).toLocaleString('fr-FR') : 'N/A'}</p>
+                            <p><strong>Dernière connexion:</strong> ${user.lastLogin ? new Date(user.lastLogin).toLocaleString('fr-FR') : 'Jamais'}</p>
+                            <p><strong>Utilisations aujourd'hui:</strong> ${usageToday} (contenus différents consultés ce jour, reprises et autres liens = 1 par contenu)</p>
+                        </div>
+                        
+                        <div style="margin-top: 25px;">
+                            <h3 style="margin-bottom: 15px; color: #333;">Token Stremio</h3>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 10px;">
+                                <p style="margin-bottom: 8px;"><strong>Token:</strong></p>
+                                <code style="font-size: 12px; word-break: break-all; display: block; background: white; padding: 8px; border-radius: 4px;">${token}</code>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                                <p style="margin-bottom: 8px;"><strong>URL Manifest Stremio:</strong></p>
+                                <code style="font-size: 11px; word-break: break-all; display: block; background: white; padding: 8px; border-radius: 4px;">${manifestUrl}</code>
+                                <button class="btn btn-secondary btn-small" style="margin-top: 10px;" onclick="copyToClipboard('${manifestUrl}')">📋 Copier l'URL</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('userModal').classList.add('show');
+                } else {
+                    showError(data.error || 'Erreur lors du chargement des détails');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        // Modifier un utilisateur
+        async function editUser(username) {
+            const newPassword = prompt(`Changer le mot de passe pour ${username}:`);
+            if (!newPassword) return;
+            
+            if (newPassword.length < 3) {
+                showError('Le mot de passe doit contenir au moins 3 caractères');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/users/${username}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: newPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Mot de passe modifié avec succès !');
+                } else {
+                    showError(data.error || 'Erreur lors de la modification');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        // Supprimer un utilisateur
+        async function deleteUser(username) {
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${username}" ?\n\nCette action est irréversible.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/users/${username}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Utilisateur supprimé avec succès !');
+                    loadUsers();
+                } else {
+                    showError(data.error || 'Erreur lors de la suppression');
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        // Fermer le modal
+        function closeModal() {
+            document.getElementById('userModal').classList.remove('show');
+        }
+        
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('userModal').addEventListener('click', (e) => {
+            if (e.target.id === 'userModal') {
+                closeModal();
+            }
+        });
+        
+        // Fonctions d'affichage des messages
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+            setTimeout(() => successDiv.classList.remove('show'), 5000);
+        }
+        
+        // Fonction pour copier dans le presse-papiers
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess('URL copiée dans le presse-papiers !');
+            }).catch(() => {
+                showError('Impossible de copier l\'URL');
+            });
+        }
+        
+        // Déconnexion
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login.html';
+            } catch (error) {
+                window.location.href = '/login.html';
+            }
+        });
+        
+        // Initialisation
+        loadUsers();
+    </script>
+</body>
+</html>
+

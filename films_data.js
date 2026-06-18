@@ -1,0 +1,1 @@
+exports.FILMS_DATA = [];

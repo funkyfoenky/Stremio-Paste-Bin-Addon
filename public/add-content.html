@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter du contenu - Stremio Addon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group .help-text {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: #5568d3;
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #0d47a1;
+            line-height: 1.6;
+        }
+        
+        .info-box code {
+            background: rgba(255,255,255,0.7);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .info-box ul {
+            margin: 10px 0 0 20px;
+        }
+        
+        .info-box li {
+            margin: 5px 0;
+        }
+        
+        .nav-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: #f0f0f0;
+            text-decoration: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .result-box.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        
+        .result-box h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .result-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .content-details {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .content-details h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .season-list {
+            margin-top: 15px;
+        }
+        
+        .season-item {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .season-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .season-title {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .episodes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .episode-badge {
+            background: #667eea;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .episode-badge.missing {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .add-episode-form {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        
+        .add-episode-form h4 {
+            margin-bottom: 10px;
+            color: #0d47a1;
+            font-size: 14px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .form-row input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-small:hover {
+            background: #5568d3;
+        }
+        
+        .btn-small:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .add-mode-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        input[type="radio"] {
+            margin-right: 8px;
+        }
+        
+        label[for^="addMode"] {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <h1>➕ Ajouter du contenu</h1>
+            <p class="subtitle">Ajoutez manuellement du contenu en utilisant un ID AllDebrid et un ID TMDB</p>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Accueil</a>
+                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
+                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
+                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 Comment utiliser :</strong>
+            <ul>
+                <li><strong>ID AllDebrid :</strong> L'ID du magnet AllDebrid que vous souhaitez ajouter (ex: <code>JcjvA9vcYB64xQHxOpLf-Z_ETiDqAR8pZxCZVJxpctg</code>)</li>
+                <li><strong>ID TMDB :</strong> L'ID du film ou de la série sur TMDB (ex: <code>1250</code> pour un film, <code>1396</code> pour une série)</li>
+            </ul>
+            <p style="margin-top: 10px;">
+                <strong>Note :</strong> Le contenu sera ajouté dans le catalogue "Contenu personnalisé" et sera disponible dans Stremio après l'ajout.
+            </p>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <!-- Section de recherche -->
+        <div class="search-section" style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h2 style="margin-bottom: 15px; font-size: 20px; color: #333;">🔍 Rechercher un contenu existant</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 13px;">
+                Recherchez un film ou une série par son ID TMDB pour voir ce qui est déjà dans votre base de données et ajouter des saisons ou épisodes manquants.
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input 
+                    type="text" 
+                    id="searchTmdbId" 
+                    placeholder="Entrez l'ID TMDB (ex: 1396)"
+                    style="flex: 1; min-width: 200px; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px;"
+                >
+                <select 
+                    id="searchContentType" 
+                    style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; min-width: 150px;"
+                >
+                    <option value="">Auto-détection</option>
+                    <option value="movie">Film</option>
+                    <option value="series">Série</option>
+                </select>
+                <button 
+                    type="button" 
+                    id="searchBtn" 
+                    class="submit-btn"
+                    style="padding: 10px 20px; width: auto;"
+                >
+                    🔍 Rechercher
+                </button>
+            </div>
+            <p style="margin-top: 10px; color: #666; font-size: 12px;">
+                <strong>Note :</strong> Si un ID TMDB existe à la fois pour un film et une série, sélectionnez explicitement le type pour éviter les conflits.
+            </p>
+        </div>
+        
+        <!-- Résultat de la recherche -->
+        <div id="searchResult" style="display: none; margin-bottom: 30px;"></div>
+        
+        <form id="addContentForm" onsubmit="addContent(event)">
+            <div class="form-group" id="allDebridIdGroup">
+                <label for="allDebridId">ID AllDebrid *</label>
+                <input 
+                    type="text" 
+                    id="allDebridId" 
+                    name="allDebridId"
+                    placeholder="Entrez l'ID AllDebrid du magnet"
+                    required
+                    autocomplete="off"
+                >
+                <div class="help-text">L'ID du magnet AllDebrid que vous souhaitez ajouter (pour les films uniquement)</div>
+            </div>
+            
+            <!-- Modal pour sélectionner un magnet AllDebrid -->
+            <div id="allDebridModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+                <div style="max-width: 900px; margin: 50px auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: #333;">📋 Sélectionner des magnets AllDebrid</h2>
+                        <button onclick="closeAllDebridModal()" style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 8px 15px; cursor: pointer; font-size: 18px;">&times;</button>
+                    </div>
+                    <div style="margin-bottom: 15px; padding: 10px; background: #e7f3ff; border-radius: 4px; font-size: 13px;">
+                        <strong>Mode sélection multiple :</strong> Cochez plusieurs magnets pour les ajouter automatiquement avec détection des épisodes depuis les noms de fichiers.
+                        <br>
+                        <span style="font-size: 12px; color: #666;">💡 Seuls les magnets vidéo non utilisés sont affichés par défaut.</span>
+                    </div>
+                    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <label style="display: flex; align-items: center; cursor: pointer; font-size: 13px;">
+                            <input type="checkbox" id="showAllMagnets" onchange="loadAllDebridMagnets()" style="margin-right: 8px;">
+                            <span>Afficher tous les magnets (y compris non-vidéo et déjà utilisés)</span>
+                        </label>
+                        <span id="magnetsCount" style="font-size: 12px; color: #666;"></span>
+                    </div>
+                    <div id="allDebridMagnetsList" style="max-height: 500px; overflow-y: auto; margin-bottom: 20px;">
+                        <p style="text-align: center; color: #666;">⏳ Chargement des magnets...</p>
+                    </div>
+                    <div id="allDebridModalActions" style="display: none; border-top: 1px solid #e0e0e0; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span id="selectedCount" style="font-weight: 600; color: #667eea;">0 magnet(s) sélectionné(s)</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="selectAllMagnets()" class="btn-small" style="background: #6c757d;">Tout sélectionner</button>
+                            <button onclick="deselectAllMagnets()" class="btn-small" style="background: #6c757d;">Tout désélectionner</button>
+                            <button onclick="addSelectedMagnets()" id="addSelectedBtn" class="btn-small" style="background: #28a745;" disabled>Ajouter sélectionnés</button>
+                            <button onclick="selectSingleMagnet()" id="selectSingleBtn" class="btn-small" style="display: none;">Sélectionner un seul</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="tmdbId">ID TMDB *</label>
+                <input 
+                    type="text" 
+                    id="tmdbId" 
+                    name="tmdbId"
+                    placeholder="Entrez l'ID TMDB (film ou série)"
+                    required
+                    autocomplete="off"
+                >
+                <div class="help-text">L'ID du film ou de la série sur The Movie Database (TMDB)</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="contentType">Type de contenu *</label>
+                <select id="contentType" name="contentType" class="form-group input" required>
+                    <option value="">-- Sélectionnez un type --</option>
+                    <option value="movie">Film</option>
+                    <option value="series">Série</option>
+                </select>
+                <div class="help-text">
+                    <strong>Important :</strong> Sélectionnez explicitement le type pour éviter les conflits si un ID TMDB existe à la fois pour un film et une série.
+                    L'auto-détection n'est plus disponible pour garantir la précision.
+                </div>
+            </div>
+            
+            <!-- Section pour les séries : sélection de saison et épisodes -->
+            <div id="seriesSection" style="display: none;">
+                <div class="form-group">
+                    <label for="seasonSelect">Sélectionner une saison</label>
+                    <select id="seasonSelect" class="form-group input">
+                        <option value="">-- Chargement des saisons... --</option>
+                    </select>
+                    <div class="help-text">Sélectionnez une saison pour voir les épisodes disponibles</div>
+                </div>
+                
+                <div id="episodesSection" style="display: none; margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Mode d'ajout</label>
+                        <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="radio" name="addMode" value="season" id="addModeSeason" checked style="margin-right: 8px;">
+                                <span>Ajouter toute la saison</span>
+                            </label>
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="radio" name="addMode" value="episode" id="addModeEpisode" style="margin-right: 8px;">
+                                <span>Ajouter un épisode spécifique</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Mode : Ajouter toute la saison -->
+                    <div id="addSeasonMode" class="add-mode-section">
+                        <div class="form-group">
+                            <label for="seasonAllDebridId">ID AllDebrid pour toute la saison *</label>
+                            <input 
+                                type="text" 
+                                id="seasonAllDebridId" 
+                                placeholder="Entrez l'ID AllDebrid du magnet contenant tous les épisodes"
+                                autocomplete="off"
+                            >
+                            <div class="help-text">L'ID du magnet AllDebrid contenant tous les épisodes de la saison sélectionnée</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mode : Ajouter un épisode spécifique -->
+                    <div id="addEpisodeMode" class="add-mode-section" style="display: none;">
+                        <div class="form-group">
+                            <label for="episodeSelect">Sélectionner un épisode</label>
+                            <select id="episodeSelect" class="form-group input">
+                                <option value="">-- Sélectionnez un épisode --</option>
+                            </select>
+                            <div class="help-text" style="margin-top: 5px; color: #666; font-size: 12px;">
+                                💡 <strong>Astuce :</strong> Si la saison n'existe pas encore, elle sera créée automatiquement lors de l'ajout de l'épisode.
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="episodeAllDebridId">ID AllDebrid pour l'épisode *</label>
+                            <input 
+                                type="text" 
+                                id="episodeAllDebridId" 
+                                placeholder="Entrez l'ID AllDebrid du magnet pour cet épisode"
+                                autocomplete="off"
+                            >
+                            <div class="help-text">L'ID du magnet AllDebrid spécifique à cet épisode</div>
+                            <button 
+                                type="button" 
+                                class="btn-small" 
+                                onclick="showAllDebridMagnetsForMultipleEpisodesFromForm()"
+                                style="background: #28a745; width: 100%; margin-top: 8px;"
+                            >
+                                📋 Sélectionner depuis AllDebrid (détection auto)
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Option pour ajouter plusieurs épisodes avec détection automatique -->
+                    <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <label style="font-weight: 600; margin-bottom: 8px;">Ajouter plusieurs épisodes (détection automatique)</label>
+                        <button 
+                            class="btn-small" 
+                            onclick="showAllDebridMagnetsForMultipleEpisodesFromForm()" 
+                            style="background: #28a745; width: 100%; margin-bottom: 8px;"
+                        >
+                            📋 Sélectionner plusieurs magnets
+                        </button>
+                        <div class="help-text" style="margin-top: 5px; font-size: 12px;">
+                            Sélectionnez plusieurs magnets depuis AllDebrid. Le système détectera automatiquement les épisodes depuis les noms de fichiers et les ajoutera à la saison sélectionnée.
+                        </div>
+                    </div>
+                    
+                    <!-- Option pour créer une saison vide -->
+                    <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <label style="font-weight: 600; margin-bottom: 8px;">Ou créer une saison vide</label>
+                        <div class="form-row">
+                            <input 
+                                type="number" 
+                                id="createEmptySeasonNum" 
+                                placeholder="Numéro de saison" 
+                                min="1" 
+                                style="max-width: 150px;" 
+                            />
+                            <button 
+                                class="btn-small" 
+                                onclick="createEmptySeasonFromForm(document.getElementById('createEmptySeasonNum').value, this)" 
+                                style="background: #28a745;"
+                            >
+                                Créer la saison vide
+                            </button>
+                        </div>
+                        <div class="help-text" style="margin-top: 5px;">
+                            Crée une saison sans épisodes. Vous pourrez ensuite ajouter des épisodes un par un.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ancien champ saison (caché, gardé pour compatibilité) -->
+            <div class="form-group" id="seasonGroup" style="display: none;">
+                <input type="hidden" id="seasonNumber" name="seasonNumber">
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+                ➕ Ajouter le contenu
+            </button>
+        </form>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Ajout du contenu en cours...</p>
+        </div>
+        
+        <div id="result" class="result-box"></div>
+    </div>
+    
+    <script>
+        let currentSeasons = [];
+        let currentEpisodes = [];
+        
+        // Afficher/masquer la section série selon le type
+        document.getElementById('contentType').addEventListener('change', function() {
+            const seriesSection = document.getElementById('seriesSection');
+            const allDebridIdGroup = document.getElementById('allDebridIdGroup');
+            const allDebridIdInput = document.getElementById('allDebridId');
+            
+            if (this.value === 'series') {
+                seriesSection.style.display = 'block';
+                // Cacher le champ AllDebrid principal pour les séries
+                allDebridIdGroup.style.display = 'none';
+                allDebridIdInput.removeAttribute('required');
+                // Charger les saisons si un ID TMDB est déjà saisi
+                const tmdbId = document.getElementById('tmdbId').value.trim();
+                if (tmdbId) {
+                    loadSeasons(tmdbId);
+                }
+            } else {
+                seriesSection.style.display = 'none';
+                // Afficher le champ AllDebrid principal pour les films
+                allDebridIdGroup.style.display = 'block';
+                allDebridIdInput.setAttribute('required', 'required');
+                // Réinitialiser
+                document.getElementById('seasonSelect').innerHTML = '<option value="">-- Sélectionnez un type série d\'abord --</option>';
+                document.getElementById('episodesSection').style.display = 'none';
+            }
+        });
+        
+        // Charger les saisons quand l'ID TMDB change et que c'est une série
+        document.getElementById('tmdbId').addEventListener('blur', function() {
+            const contentType = document.getElementById('contentType').value;
+            const tmdbId = this.value.trim();
+            
+            if (contentType === 'series' && tmdbId) {
+                loadSeasons(tmdbId);
+            }
+        });
+        
+        // Charger les épisodes quand une saison est sélectionnée
+        document.getElementById('seasonSelect').addEventListener('change', function() {
+            const seasonNum = this.value;
+            const tmdbId = document.getElementById('tmdbId').value.trim();
+            
+            if (seasonNum && tmdbId) {
+                loadEpisodes(tmdbId, seasonNum);
+            } else {
+                document.getElementById('episodesSection').style.display = 'none';
+            }
+        });
+        
+        // Basculer entre les modes d'ajout
+        document.querySelectorAll('input[name="addMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const addSeasonMode = document.getElementById('addSeasonMode');
+                const addEpisodeMode = document.getElementById('addEpisodeMode');
+                
+                if (this.value === 'season') {
+                    addSeasonMode.style.display = 'block';
+                    addEpisodeMode.style.display = 'none';
+                } else {
+                    addSeasonMode.style.display = 'none';
+                    addEpisodeMode.style.display = 'block';
+                }
+            });
+        });
+        
+        async function loadSeasons(tmdbId) {
+            const seasonSelect = document.getElementById('seasonSelect');
+            seasonSelect.innerHTML = '<option value="">⏳ Chargement des saisons... --</option>';
+            seasonSelect.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/series/${tmdbId}/seasons`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentSeasons = data.seasons;
+                    seasonSelect.innerHTML = '<option value="">-- Sélectionnez une saison --</option>';
+                    
+                    data.seasons.forEach(season => {
+                        const option = document.createElement('option');
+                        option.value = season.number;
+                        option.textContent = `Saison ${season.number}: ${season.name} (${season.episodeCount} épisodes)`;
+                        seasonSelect.appendChild(option);
+                    });
+                    
+                    seasonSelect.disabled = false;
+                } else {
+                    throw new Error(data.error || 'Erreur lors du chargement des saisons');
+                }
+            } catch (error) {
+                seasonSelect.innerHTML = `<option value="">❌ Erreur: ${error.message}</option>`;
+                showStatus('Erreur lors du chargement des saisons: ' + error.message, 'error');
+            }
+        }
+        
+        async function loadEpisodes(tmdbId, seasonNum) {
+            const episodeSelect = document.getElementById('episodeSelect');
+            const episodesSection = document.getElementById('episodesSection');
+            
+            episodeSelect.innerHTML = '<option value="">⏳ Chargement des épisodes... --</option>';
+            episodesSection.style.display = 'block';
+            
+            try {
+                const response = await fetch(`/api/series/${tmdbId}/seasons/${seasonNum}/episodes`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentEpisodes = data.episodes;
+                    episodeSelect.innerHTML = '<option value="">-- Sélectionnez un épisode --</option>';
+                    
+                    data.episodes.forEach(episode => {
+                        const option = document.createElement('option');
+                        option.value = episode.number;
+                        const epName = episode.name || `Épisode ${episode.number}`;
+                        const epDate = episode.airDate ? ` (${episode.airDate.split('-')[0]})` : '';
+                        option.textContent = `Épisode ${episode.number}: ${epName}${epDate}`;
+                        episodeSelect.appendChild(option);
+                    });
+                } else {
+                    throw new Error(data.error || 'Erreur lors du chargement des épisodes');
+                }
+            } catch (error) {
+                episodeSelect.innerHTML = `<option value="">❌ Erreur: ${error.message}</option>`;
+                showStatus('Erreur lors du chargement des épisodes: ' + error.message, 'error');
+            }
+        }
+        
+        async function addContent(event) {
+            event.preventDefault();
+            
+            const tmdbId = document.getElementById('tmdbId').value.trim();
+            const contentType = document.getElementById('contentType').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+            
+            // Validation de base
+            if (!tmdbId || !contentType) {
+                showStatus('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+            
+            // Désactiver le formulaire
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Ajout en cours...';
+            loading.classList.add('active');
+            status.style.display = 'none';
+            result.style.display = 'none';
+            
+            try {
+                if (contentType === 'series') {
+                    // Pour les séries, utiliser le nouveau système avec saisons/épisodes
+                    const seasonSelect = document.getElementById('seasonSelect');
+                    const selectedSeason = seasonSelect.value;
+                    const addMode = document.querySelector('input[name="addMode"]:checked')?.value;
+                    
+                    if (!selectedSeason) {
+                        showStatus('Veuillez sélectionner une saison', 'error');
+                        return;
+                    }
+                    
+                    if (addMode === 'season') {
+                        // Mode : Ajouter toute la saison
+                        const seasonAllDebridId = document.getElementById('seasonAllDebridId').value.trim();
+                        if (!seasonAllDebridId) {
+                            showStatus('Veuillez entrer l\'ID AllDebrid pour la saison', 'error');
+                            return;
+                        }
+                        
+                        const response = await fetch('/api/add-episode', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                tmdbId: tmdbId,
+                                allDebridId: seasonAllDebridId,
+                                seasonNumber: parseInt(selectedSeason)
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            result.className = 'result-box success';
+                            result.innerHTML = `
+                                <h3>✅ Saison ajoutée avec succès !</h3>
+                                <p><strong>Série :</strong> ${tmdbId}</p>
+                                <p><strong>Saison :</strong> ${selectedSeason}</p>
+                                <p><strong>Épisodes ajoutés :</strong> ${data.addedCount}</p>
+                                <p style="margin-top: 15px; font-size: 13px;">
+                                    La saison a été ajoutée dans le catalogue "Contenu personnalisé" et sera disponible dans Stremio.
+                                </p>
+                            `;
+                            result.style.display = 'block';
+                            showStatus(`Saison ${selectedSeason} ajoutée avec succès ! (${data.addedCount} épisodes)`, 'success');
+                            
+                            // Réinitialiser les champs de la série
+                            document.getElementById('seasonAllDebridId').value = '';
+                            document.getElementById('seasonSelect').value = '';
+                            document.getElementById('episodesSection').style.display = 'none';
+                        } else {
+                            throw new Error(data.error || data.message || 'Erreur lors de l\'ajout de la saison');
+                        }
+                    } else {
+                        // Mode : Ajouter un épisode spécifique
+                        const episodeSelect = document.getElementById('episodeSelect');
+                        const episodeAllDebridId = document.getElementById('episodeAllDebridId').value.trim();
+                        const selectedEpisode = episodeSelect.value;
+                        
+                        if (!selectedEpisode) {
+                            showStatus('Veuillez sélectionner un épisode', 'error');
+                            return;
+                        }
+                        
+                        if (!episodeAllDebridId) {
+                            showStatus('Veuillez entrer l\'ID AllDebrid pour l\'épisode', 'error');
+                            return;
+                        }
+                        
+                        const response = await fetch('/api/add-episode', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                tmdbId: tmdbId,
+                                allDebridId: episodeAllDebridId,
+                                seasonNumber: parseInt(selectedSeason),
+                                episodeNumber: parseInt(selectedEpisode)
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            result.className = 'result-box success';
+                            result.innerHTML = `
+                                <h3>✅ Épisode ajouté avec succès !</h3>
+                                <p><strong>Série :</strong> ${tmdbId}</p>
+                                <p><strong>Saison :</strong> ${selectedSeason}</p>
+                                <p><strong>Épisode :</strong> ${selectedEpisode}</p>
+                                <p style="margin-top: 15px; font-size: 13px;">
+                                    L'épisode a été ajouté dans le catalogue "Contenu personnalisé" et sera disponible dans Stremio.
+                                </p>
+                            `;
+                            result.style.display = 'block';
+                            showStatus(`Épisode ${selectedEpisode} de la saison ${selectedSeason} ajouté avec succès !`, 'success');
+                            
+                            // Réinitialiser les champs de l'épisode
+                            document.getElementById('episodeAllDebridId').value = '';
+                            document.getElementById('episodeSelect').value = '';
+                            
+                            // Recharger les saisons pour voir l'épisode ajouté
+                            setTimeout(() => {
+                                loadSeasons(tmdbId);
+                            }, 1000);
+                        } else {
+                            throw new Error(data.error || data.message || 'Erreur lors de l\'ajout de l\'épisode');
+                        }
+                    }
+                } else {
+                    // Pour les films, utiliser l'ancien système
+                    const allDebridId = document.getElementById('allDebridId').value.trim();
+                    if (!allDebridId) {
+                        showStatus('Veuillez entrer l\'ID AllDebrid', 'error');
+                        return;
+                    }
+                    
+                    const requestBody = {
+                        allDebridId: allDebridId,
+                        tmdbId: tmdbId,
+                        contentType: contentType
+                    };
+                    
+                    const response = await fetch('/api/add-content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        result.className = 'result-box success';
+                        result.innerHTML = `
+                            <h3>✅ Contenu ajouté avec succès !</h3>
+                            <p><strong>Type :</strong> ${data.type === 'movie' ? 'Film' : 'Série'}</p>
+                            <p><strong>Nom :</strong> ${data.name}</p>
+                            <p><strong>ID TMDB :</strong> ${data.tmdbId}</p>
+                            <p><strong>Fichiers trouvés :</strong> ${data.filesCount}</p>
+                            <p style="margin-top: 15px; font-size: 13px;">
+                                Le contenu a été ajouté dans le catalogue "Contenu personnalisé" et sera disponible dans Stremio.
+                            </p>
+                        `;
+                        result.style.display = 'block';
+                        showStatus('Contenu ajouté avec succès !', 'success');
+                        
+                        // Réinitialiser le formulaire
+                        document.getElementById('allDebridId').value = '';
+                    } else {
+                        throw new Error(data.error || data.message || 'Erreur lors de l\'ajout du contenu');
+                    }
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+                result.style.display = 'none';
+            } finally {
+                // Réactiver le formulaire
+                submitBtn.disabled = false;
+                submitBtn.textContent = '➕ Ajouter le contenu';
+                loading.classList.remove('active');
+            }
+        }
+        
+        // Afficher un message de statut
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Permettre la soumission avec Enter
+        document.getElementById('addContentForm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                addContent(e);
+            }
+        });
+        
+        // Fonction de recherche
+        document.getElementById('searchBtn').addEventListener('click', searchContent);
+        document.getElementById('searchTmdbId').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchContent();
+            }
+        });
+        
+        let currentContent = null;
+        
+        async function searchContent() {
+            const tmdbId = document.getElementById('searchTmdbId').value.trim();
+            const contentType = document.getElementById('searchContentType').value;
+            const searchBtn = document.getElementById('searchBtn');
+            const searchResult = document.getElementById('searchResult');
+            
+            if (!tmdbId) {
+                showStatus('Veuillez entrer un ID TMDB', 'error');
+                return;
+            }
+            
+            searchBtn.disabled = true;
+            searchBtn.textContent = '⏳ Recherche...';
+            searchResult.style.display = 'none';
+            
+            try {
+                // Construire l'URL avec le paramètre de type si spécifié
+                let url = `/api/search-content/${tmdbId}`;
+                if (contentType) {
+                    url += `?type=${contentType}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentContent = data;
+                    // Remplir automatiquement les champs du formulaire principal
+                    document.getElementById('tmdbId').value = tmdbId;
+                    // Remplir le type si détecté
+                    if (data.type === 'movie') {
+                        document.getElementById('contentType').value = 'movie';
+                    } else if (data.type === 'series') {
+                        document.getElementById('contentType').value = 'series';
+                    }
+                    // Afficher/masquer le champ saison selon le type
+                    const seasonGroup = document.getElementById('seasonGroup');
+                    if (data.type === 'series') {
+                        seasonGroup.style.display = 'block';
+                    } else {
+                        seasonGroup.style.display = 'none';
+                    }
+                    displaySearchResult(data);
+                } else {
+                    throw new Error(data.error || 'Erreur lors de la recherche');
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+                searchResult.style.display = 'none';
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Rechercher';
+            }
+        }
+        
+        function displaySearchResult(data) {
+            const searchResult = document.getElementById('searchResult');
+            
+            if (data.type === 'movie') {
+                // Affichage pour un film
+                let html = `
+                    <div class="content-details">
+                        <h3>🎬 ${data.name} ${data.year ? `(${data.year})` : ''}</h3>
+                        <p><strong>ID TMDB :</strong> ${data.tmdbId}</p>
+                        <p><strong>Type :</strong> Film</p>
+                `;
+                
+                if (data.exists) {
+                    const isCustomContent = data.isCustomContent !== false; // Par défaut true si non spécifié
+                    html += `
+                        <p><strong>Statut :</strong> ✅ Déjà dans la base de données</p>
+                        ${!isCustomContent ? '<p style="color: #ff9800; font-weight: 600; margin-top: 10px;">⚠️ Ce film existe dans la base mais n\'est pas encore dans "Contenu personnalisé". Il sera automatiquement ajouté à ce groupe lors de l\'ajout.</p>' : ''}
+                        <p><strong>Fichiers :</strong> ${data.filesCount} fichier(s)</p>
+                    `;
+                } else {
+                    html += `
+                        <p><strong>Statut :</strong> ❌ Non présent dans la base de données</p>
+                        <p style="margin-top: 10px; color: #666; font-size: 13px;">
+                            Utilisez le formulaire ci-dessous pour ajouter ce film.
+                        </p>
+                    `;
+                }
+                
+                html += `</div>`;
+                searchResult.innerHTML = html;
+            } else {
+                // Affichage pour une série
+                let html = `
+                    <div class="content-details">
+                        <h3>📺 ${data.name} ${data.year ? `(${data.year})` : ''}</h3>
+                        <p><strong>ID TMDB :</strong> ${data.tmdbId}</p>
+                        <p><strong>Type :</strong> Série</p>
+                `;
+                
+                if (data.exists) {
+                    const isCustomContent = data.isCustomContent !== false; // Par défaut true si non spécifié
+                    html += `
+                        <p><strong>Statut :</strong> ✅ Déjà dans la base de données</p>
+                        ${!isCustomContent ? '<p style="color: #ff9800; font-weight: 600; margin-top: 10px;">⚠️ Cette série existe dans la base mais n\'est pas encore dans "Contenu personnalisé". Elle sera automatiquement ajoutée à ce groupe lors de l\'ajout d\'une saison/épisode.</p>' : ''}
+                        <p><strong>Total d'épisodes :</strong> ${data.totalEpisodes}</p>
+                        <div class="season-list">
+                            <h4 style="margin-bottom: 10px; color: #333;">Saisons disponibles :</h4>
+                    `;
+                    
+                    if (data.seasons && data.seasons.length > 0) {
+                        data.seasons.forEach(season => {
+                            html += `
+                                <div class="season-item">
+                                    <div class="season-header">
+                                        <span class="season-title">Saison ${season.number}</span>
+                                        <span style="color: #666; font-size: 13px;">${season.episodes.length} épisode(s)</span>
+                                    </div>
+                                    <div class="episodes-list">
+                            `;
+                            
+                            season.episodes.forEach(ep => {
+                                html += `<span class="episode-badge">E${ep.number}</span>`;
+                            });
+                            
+                            html += `
+                                    </div>
+                                    <div class="add-episode-form">
+                                        <h4>➕ Ajouter des épisodes à cette saison</h4>
+                                        <div class="form-row">
+                                            <input type="text" id="allDebridId_${season.number}" placeholder="ID AllDebrid du magnet (optionnel)" style="flex: 1;" />
+                                            <button class="btn-small" onclick="addSeason(${season.number}, null, this)">Ajouter toute la saison</button>
+                                        </div>
+                                        <div class="form-row">
+                                            <input type="number" id="episodeNum_${season.number}" placeholder="Numéro d'épisode" min="1" style="max-width: 150px;" />
+                                            <input type="text" id="allDebridId_ep_${season.number}" placeholder="ID AllDebrid (optionnel)" style="flex: 1;" />
+                                            <button class="btn-small" onclick="addEpisode(${season.number}, document.getElementById('episodeNum_${season.number}').value, this)">Ajouter l'épisode</button>
+                                        </div>
+                                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                            <button class="btn-small" onclick="showAllDebridMagnetsForMultipleEpisodes(${season.number})" style="background: #28a745; width: 100%;">
+                                                📋 Sélectionner depuis AllDebrid (détection auto)
+                                            </button>
+                                            <div class="help-text" style="margin-top: 5px; font-size: 12px;">
+                                                Sélectionnez plusieurs magnets et le système détectera automatiquement les épisodes depuis les noms de fichiers
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html += `<p style="color: #666;">Aucune saison trouvée dans la base de données.</p>`;
+                    }
+                    
+                    // Ajouter une nouvelle saison
+                    html += `
+                            <div class="season-item" style="border: 2px dashed #667eea;">
+                                <div class="season-header">
+                                    <span class="season-title">➕ Nouvelle saison</span>
+                                </div>
+                                <div class="add-episode-form">
+                                    <h4 style="margin-bottom: 10px;">Option 1 : Créer une saison vide</h4>
+                                    <div class="form-row">
+                                        <input type="number" id="newSeasonNum" placeholder="Numéro de saison" min="1" style="max-width: 150px;" />
+                                        <button class="btn-small" onclick="createEmptySeason(document.getElementById('newSeasonNum').value, this)" style="background: #28a745;">Créer la saison vide</button>
+                                    </div>
+                                    <p style="margin-top: 10px; margin-bottom: 10px; color: #666; font-size: 12px;">
+                                        Crée une saison sans épisodes. Vous pourrez ensuite ajouter des épisodes un par un.
+                                    </p>
+                                    
+                                    <h4 style="margin-top: 15px; margin-bottom: 10px;">Option 2 : Ajouter toute la saison</h4>
+                                    <div class="form-row">
+                                        <input type="number" id="newSeasonNumFull" placeholder="Numéro de saison" min="1" style="max-width: 150px;" />
+                                        <input type="text" id="newSeasonAllDebridId" placeholder="ID AllDebrid du magnet (optionnel)" style="flex: 1;" />
+                                        <button class="btn-small" onclick="addSeason(document.getElementById('newSeasonNumFull').value, null, this)">Ajouter la saison</button>
+                                    </div>
+                                    <div style="margin-top: 10px;">
+                                        <button class="btn-small" onclick="showAllDebridMagnetsForMultipleEpisodes(document.getElementById('newSeasonNumFull').value)" style="background: #28a745; width: 100%;">
+                                            📋 Sélectionner depuis AllDebrid (détection auto)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <p><strong>Statut :</strong> ❌ Non présente dans la base de données</p>
+                    `;
+                    
+                    if (data.tmdbSeasons && data.tmdbSeasons.length > 0) {
+                        html += `
+                            <p style="margin-top: 10px;"><strong>Saisons disponibles sur TMDB :</strong></p>
+                            <ul style="margin-left: 20px; color: #666;">
+                        `;
+                        data.tmdbSeasons.forEach(s => {
+                            html += `<li>Saison ${s.number}: ${s.name} (${s.episodeCount} épisodes)${s.airDate ? ` - ${s.airDate}` : ''}</li>`;
+                        });
+                        html += `</ul>`;
+                    }
+                    
+                    html += `
+                        <p style="margin-top: 10px; color: #666; font-size: 13px;">
+                            Utilisez le formulaire ci-dessous pour ajouter cette série, ou ajoutez directement une saison :
+                        </p>
+                        <div class="add-episode-form" style="margin-top: 15px;">
+                            <h4 style="margin-bottom: 10px;">Option 1 : Créer une saison vide</h4>
+                            <div class="form-row">
+                                <input type="number" id="newSeasonNum" placeholder="Numéro de saison" min="1" style="max-width: 150px;" />
+                                <button class="btn-small" onclick="createEmptySeason(document.getElementById('newSeasonNum').value, this)" style="background: #28a745;">Créer la saison vide</button>
+                            </div>
+                            <p style="margin-top: 10px; margin-bottom: 10px; color: #666; font-size: 12px;">
+                                Crée une saison sans épisodes. Vous pourrez ensuite ajouter des épisodes un par un.
+                            </p>
+                            
+                            <h4 style="margin-top: 15px; margin-bottom: 10px;">Option 2 : Ajouter toute la saison</h4>
+                            <div class="form-row">
+                                <input type="number" id="newSeasonNumFull" placeholder="Numéro de saison" min="1" style="max-width: 150px;" />
+                                <input type="text" id="newSeasonAllDebridId" placeholder="ID AllDebrid du magnet (optionnel)" style="flex: 1;" />
+                                <button class="btn-small" onclick="addSeason(document.getElementById('newSeasonNumFull').value, null, this)">Ajouter la saison</button>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <button class="btn-small" onclick="showAllDebridMagnetsForMultipleEpisodes(document.getElementById('newSeasonNumFull').value)" style="background: #28a745; width: 100%;">
+                                    📋 Sélectionner depuis AllDebrid (détection auto)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+                searchResult.innerHTML = html;
+            }
+            
+            searchResult.style.display = 'block';
+        }
+        
+        async function addSeason(seasonNumber, episodeNumber, btnElement) {
+            // Si currentContent n'est pas défini, essayer de le récupérer depuis le champ de recherche
+            if (!currentContent) {
+                const searchTmdbId = document.getElementById('searchTmdbId').value.trim();
+                const searchContentType = document.getElementById('searchContentType').value;
+                if (searchTmdbId) {
+                    // Essayer de récupérer les infos depuis TMDB
+                    try {
+                        let url = `/api/search-content/${searchTmdbId}`;
+                        if (searchContentType) {
+                            url += `?type=${searchContentType}`;
+                        }
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        if (data.success) {
+                            currentContent = data;
+                        } else {
+                            showStatus('Veuillez d\'abord rechercher un contenu', 'error');
+                            return;
+                        }
+                    } catch (error) {
+                        showStatus('Veuillez d\'abord rechercher un contenu', 'error');
+                        return;
+                    }
+                } else {
+                    showStatus('Veuillez d\'abord rechercher un contenu', 'error');
+                    return;
+                }
+            }
+            
+            // Vérifier que c'est une série
+            if (currentContent.type !== 'series') {
+                showStatus('Cet outil est uniquement pour les séries', 'error');
+                return;
+            }
+            
+            const seasonNum = parseInt(seasonNumber);
+            if (isNaN(seasonNum) || seasonNum < 1) {
+                showStatus('Numéro de saison invalide', 'error');
+                return;
+            }
+            
+            const allDebridIdInput = episodeNumber 
+                ? document.getElementById(`allDebridId_ep_${seasonNum}`)
+                : document.getElementById(`allDebridId_${seasonNum}`) || document.getElementById('newSeasonAllDebridId');
+            
+            const allDebridId = allDebridIdInput ? allDebridIdInput.value.trim() : '';
+            
+            if (!allDebridId) {
+                showStatus('Veuillez entrer un ID AllDebrid', 'error');
+                return;
+            }
+            
+            const btn = btnElement;
+            btn.disabled = true;
+            btn.textContent = '⏳ Ajout...';
+            
+            try {
+                const requestBody = {
+                    tmdbId: currentContent.tmdbId,
+                    allDebridId: allDebridId,
+                    seasonNumber: seasonNum
+                };
+                
+                if (episodeNumber) {
+                    requestBody.episodeNumber = parseInt(episodeNumber);
+                }
+                
+                const response = await fetch('/api/add-episode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(data.message, 'success');
+                    // Recharger les résultats
+                    setTimeout(() => {
+                        searchContent();
+                    }, 1000);
+                } else {
+                    throw new Error(data.error || data.message || 'Erreur lors de l\'ajout');
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                if (episodeNumber) {
+                    btn.textContent = 'Ajouter l\'épisode';
+                } else {
+                    btn.textContent = 'Ajouter toute la saison';
+                }
+            }
+        }
+        
+        async function addEpisode(seasonNumber, episodeNumber, btnElement) {
+            const epNum = parseInt(episodeNumber);
+            if (isNaN(epNum) || epNum < 1) {
+                showStatus('Numéro d\'épisode invalide', 'error');
+                return;
+            }
+            
+            await addSeason(seasonNumber, epNum, btnElement);
+        }
+        
+        async function createEmptySeason(seasonNumber, btnElement) {
+            // Si currentContent n'est pas défini, essayer de le récupérer depuis le champ de recherche
+            if (!currentContent) {
+                const searchTmdbId = document.getElementById('searchTmdbId').value.trim();
+                const searchContentType = document.getElementById('searchContentType').value;
+                if (searchTmdbId) {
+                    try {
+                        let url = `/api/search-content/${searchTmdbId}`;
+                        if (searchContentType) {
+                            url += `?type=${searchContentType}`;
+                        }
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        if (data.success) {
+                            currentContent = data;
+                        } else {
+                            showStatus('Veuillez d\'abord rechercher un contenu', 'error');
+                            return;
+                        }
+                    } catch (error) {
+                        showStatus('Veuillez d\'abord rechercher un contenu', 'error');
+                        return;
+                    }
+                } else {
+                    // Essayer depuis le formulaire principal
+                    const tmdbId = document.getElementById('tmdbId').value.trim();
+                    const contentType = document.getElementById('contentType').value;
+                    if (tmdbId && contentType === 'series') {
+                        try {
+                            let url = `/api/search-content/${tmdbId}?type=series`;
+                            const response = await fetch(url);
+                            const data = await response.json();
+                            if (data.success && data.type === 'series') {
+                                currentContent = data;
+                            } else {
+                                showStatus('Veuillez d\'abord rechercher ou entrer un ID TMDB de série', 'error');
+                                return;
+                            }
+                        } catch (error) {
+                            showStatus('Veuillez d\'abord rechercher ou entrer un ID TMDB de série', 'error');
+                            return;
+                        }
+                    } else {
+                        showStatus('Veuillez d\'abord rechercher ou entrer un ID TMDB de série', 'error');
+                        return;
+                    }
+                }
+            }
+            
+            // Vérifier que c'est une série
+            if (currentContent.type !== 'series') {
+                showStatus('Cet outil est uniquement pour les séries', 'error');
+                return;
+            }
+            
+            const seasonNum = parseInt(seasonNumber);
+            if (isNaN(seasonNum) || seasonNum < 1) {
+                showStatus('Numéro de saison invalide', 'error');
+                return;
+            }
+            
+            const btn = btnElement;
+            btn.disabled = true;
+            btn.textContent = '⏳ Création...';
+            
+            try {
+                const response = await fetch('/api/create-empty-season', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tmdbId: currentContent.tmdbId,
+                        seasonNumber: seasonNum
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(data.message, 'success');
+                    // Recharger les résultats si on est dans la recherche
+                    if (document.getElementById('searchResult').style.display !== 'none') {
+                        setTimeout(() => {
+                            searchContent();
+                        }, 1000);
+                    }
+                } else {
+                    throw new Error(data.error || data.message || 'Erreur lors de la création de la saison');
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Créer la saison vide';
+            }
+        }
+        
+        async function createEmptySeasonFromForm(seasonNumber, btnElement) {
+            const tmdbId = document.getElementById('tmdbId').value.trim();
+            const contentType = document.getElementById('contentType').value;
+            
+            if (!tmdbId) {
+                showStatus('Veuillez entrer un ID TMDB', 'error');
+                return;
+            }
+            
+            if (contentType !== 'series') {
+                showStatus('Veuillez sélectionner "Série" comme type de contenu', 'error');
+                return;
+            }
+            
+            const seasonNum = parseInt(seasonNumber);
+            if (isNaN(seasonNum) || seasonNum < 1) {
+                showStatus('Numéro de saison invalide', 'error');
+                return;
+            }
+            
+            const btn = btnElement;
+            btn.disabled = true;
+            btn.textContent = '⏳ Création...';
+            
+            try {
+                const response = await fetch('/api/create-empty-season', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tmdbId: tmdbId,
+                        seasonNumber: seasonNum
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(data.message, 'success');
+                    // Recharger les saisons
+                    setTimeout(() => {
+                        loadSeasons(tmdbId);
+                    }, 1000);
+                } else {
+                    throw new Error(data.error || data.message || 'Erreur lors de la création de la saison');
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Créer la saison vide';
+            }
+        }
+        
+        async function showAllDebridMagnets() {
+            loadAllDebridMagnets();
+        }
+        
+        // Fonctions pour gérer les magnets masqués dans localStorage
+        function getHiddenMagnets() {
+            try {
+                const hidden = localStorage.getItem('hiddenAllDebridMagnets');
+                return hidden ? JSON.parse(hidden) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+        
+        function setHiddenMagnets(ids) {
+            try {
+                localStorage.setItem('hiddenAllDebridMagnets', JSON.stringify(ids));
+            } catch (e) {
+                console.error('Erreur lors de la sauvegarde des magnets masqués:', e);
+            }
+        }
+        
+        function hideMagnet(magnetId) {
+            const hidden = getHiddenMagnets();
+            if (!hidden.includes(magnetId)) {
+                hidden.push(magnetId);
+                setHiddenMagnets(hidden);
+                // Masquer visuellement l'élément avec animation
+                const item = document.querySelector(`[data-magnet-id="${magnetId}"]`);
+                if (item) {
+                    item.style.transition = 'opacity 0.3s, transform 0.3s';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(-10px)';
+                    setTimeout(() => {
+                        item.style.display = 'none';
+                        updateMagnetsCount();
+                    }, 300);
+                } else {
+                    updateMagnetsCount();
+                }
+            }
+        }
+        
+        function unhideMagnet(magnetId) {
+            const hidden = getHiddenMagnets();
+            const index = hidden.indexOf(magnetId);
+            if (index > -1) {
+                hidden.splice(index, 1);
+                setHiddenMagnets(hidden);
+                // Masquer visuellement l'élément (il sera filtré au prochain chargement)
+                const item = document.querySelector(`[data-magnet-id="${magnetId}"]`);
+                if (item) {
+                    item.style.display = 'none';
+                }
+                updateMagnetsCount();
+            }
+        }
+        
+        function updateMagnetsCount() {
+            const countSpan = document.getElementById('magnetsCount');
+            if (!countSpan) return;
+            
+            const showAll = document.getElementById('showAllMagnets')?.checked || false;
+            const hiddenMagnets = getHiddenMagnets();
+            const visibleItems = document.querySelectorAll('.magnet-item:not([style*="display: none"])');
+            const visibleCount = visibleItems.length;
+            const totalHidden = hiddenMagnets.length;
+            
+            let countText = `${visibleCount} magnet(s) disponible(s)`;
+            if (totalHidden > 0) {
+                countText += ` (${totalHidden} masqué(s))`;
+            }
+            countSpan.textContent = countText;
+        }
+        
+        async function loadAllDebridMagnets() {
+            const modal = document.getElementById('allDebridModal');
+            const listDiv = document.getElementById('allDebridMagnetsList');
+            const showAll = document.getElementById('showAllMagnets')?.checked || false;
+            const countSpan = document.getElementById('magnetsCount');
+            
+            if (modal.style.display === 'none') {
+                modal.style.display = 'block';
+            }
+            
+            listDiv.innerHTML = '<p style="text-align: center; color: #666;">⏳ Chargement des magnets...</p>';
+            if (countSpan) countSpan.textContent = '';
+            
+            try {
+                const url = showAll ? '/api/alldebrid/magnets?showAll=true' : '/api/alldebrid/magnets';
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.magnets && data.magnets.length > 0) {
+                    // Récupérer les magnets masqués
+                    const hiddenMagnets = getHiddenMagnets();
+                    
+                    // Filtrer les magnets masqués si showAll n'est pas activé
+                    let visibleMagnets = data.magnets;
+                    if (!showAll) {
+                        visibleMagnets = data.magnets.filter(m => !hiddenMagnets.includes(String(m.id)));
+                    }
+                    
+                    let html = '<div style="display: grid; gap: 6px;">';
+                    
+                    visibleMagnets.forEach((magnet, index) => {
+                        // Vérifier si déjà utilisé (si showAll est activé)
+                        const isUsed = magnet.isUsed || false;
+                        const isHidden = hiddenMagnets.includes(String(magnet.id));
+                        
+                        // Style pour les non-vidéos et les utilisés (si showAll est activé)
+                        let itemStyle = '';
+                        let badge = '';
+                        if (magnet.isUsed) {
+                            itemStyle = 'border-left: 3px solid #dc3545; opacity: 0.6;';
+                            badge = '<span style="margin-left: 6px; padding: 2px 6px; background: #dc3545; color: white; border-radius: 3px; font-size: 10px; font-weight: 600;">✓ Utilisé</span>';
+                        }
+                        
+                        // Déterminer quel bouton afficher
+                        let hideButton = '';
+                        if (showAll && isHidden) {
+                            // Mode "Afficher tous" : bouton pour démasquer
+                            hideButton = `<button onclick="event.stopPropagation(); unhideMagnet('${magnet.id}')" 
+                                            style="background: none; border: none; cursor: pointer; padding: 4px; color: #999; font-size: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; transition: all 0.2s;"
+                                            onmouseover="this.style.background='#f0f0f0'; this.style.color='#28a745'"
+                                            onmouseout="this.style.background='none'; this.style.color='#999'"
+                                            title="Afficher ce magnet">
+                                        👁️‍🗨️
+                                    </button>`;
+                        } else if (!isHidden) {
+                            // Magnet visible : bouton pour masquer
+                            hideButton = `<button onclick="event.stopPropagation(); hideMagnet('${magnet.id}')" 
+                                            style="background: none; border: none; cursor: pointer; padding: 4px; color: #999; font-size: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 4px; transition: all 0.2s;"
+                                            onmouseover="this.style.background='#f0f0f0'; this.style.color='#dc3545'"
+                                            onmouseout="this.style.background='none'; this.style.color='#999'"
+                                            title="Masquer ce magnet">
+                                        👁️
+                                    </button>`;
+                        }
+                        
+                        html += `
+                            <div style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; transition: all 0.2s; ${itemStyle}" 
+                                 class="magnet-item" 
+                                 data-magnet-id="${magnet.id}"
+                                 data-magnet-filename="${magnet.filename.replace(/"/g, '&quot;')}"
+                                 onmouseover="this.style.borderColor='#667eea'; this.style.background='#f8f9fa'"
+                                 onmouseout="this.style.borderColor='#e0e0e0'; this.style.background='white'">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="checkbox" 
+                                           class="magnet-checkbox" 
+                                           id="magnet_${magnet.id}" 
+                                           value="${magnet.id}"
+                                           ${isUsed ? 'disabled' : ''}
+                                           onchange="updateSelectedCount(); updateMagnetItemStyle(this)"
+                                           style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
+                                    <div style="flex: 1; cursor: ${isUsed ? 'not-allowed' : 'pointer'}; min-width: 0;" onclick="${isUsed ? 'return;' : `document.getElementById('magnet_${magnet.id}').click()`}">
+                                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                            <strong style="color: #333; font-size: 13px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${magnet.filename}</strong>
+                                            ${badge}
+                                        </div>
+                                    </div>
+                                    ${hideButton}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    listDiv.innerHTML = html;
+                    document.getElementById('allDebridModalActions').style.display = 'flex';
+                    updateSelectedCount();
+                    updateMagnetsCount();
+                } else {
+                    listDiv.innerHTML = '<p style="text-align: center; color: #666;">Aucun magnet trouvé dans votre compte AllDebrid.</p>';
+                    document.getElementById('allDebridModalActions').style.display = 'none';
+                    if (countSpan) countSpan.textContent = '';
+                }
+            } catch (error) {
+                listDiv.innerHTML = `<p style="text-align: center; color: #dc3545;">❌ Erreur: ${error.message}</p>`;
+            }
+        }
+        
+        function closeAllDebridModal() {
+            document.getElementById('allDebridModal').style.display = 'none';
+        }
+        
+        let currentAllDebridTargetField = 'allDebridId'; // Champ par défaut
+        
+        function showAllDebridMagnetsForSeason(seasonNumber, episodeNumber, targetFieldId) {
+            // Déterminer le champ cible
+            if (targetFieldId) {
+                currentAllDebridTargetField = targetFieldId;
+            } else if (episodeNumber) {
+                currentAllDebridTargetField = `allDebridId_ep_${seasonNumber}`;
+            } else if (seasonNumber) {
+                currentAllDebridTargetField = `allDebridId_${seasonNumber}`;
+            } else {
+                currentAllDebridTargetField = 'allDebridId';
+            }
+            
+            showAllDebridMagnets();
+        }
+        
+        function showAllDebridMagnetsForEpisode() {
+            currentAllDebridTargetField = 'episodeAllDebridId';
+            showAllDebridMagnets();
+        }
+        
+        function showAllDebridMagnetsForMultipleEpisodes(seasonNumber) {
+            // Stocker la saison pour l'ajout multiple
+            window.currentSeasonForMultiple = seasonNumber;
+            currentAllDebridTargetField = null; // Pas de champ cible, on utilisera l'ajout multiple
+            showAllDebridMagnets();
+        }
+        
+        function showAllDebridMagnetsForMultipleEpisodesFromForm() {
+            const seasonSelect = document.getElementById('seasonSelect');
+            const selectedSeason = seasonSelect ? seasonSelect.value : null;
+            
+            if (!selectedSeason) {
+                showStatus('Veuillez d\'abord sélectionner une saison', 'error');
+                return;
+            }
+            
+            showAllDebridMagnetsForMultipleEpisodes(parseInt(selectedSeason));
+        }
+        
+        function updateMagnetItemStyle(checkbox) {
+            const item = checkbox.closest('.magnet-item');
+            if (checkbox.checked) {
+                item.style.borderColor = '#28a745';
+                item.style.background = '#f0fff4';
+            } else {
+                item.style.borderColor = '#e0e0e0';
+                item.style.background = 'white';
+            }
+        }
+        
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.magnet-checkbox:checked');
+            const count = checkboxes.length;
+            document.getElementById('selectedCount').textContent = `${count} magnet(s) sélectionné(s)`;
+            document.getElementById('addSelectedBtn').disabled = count === 0;
+            
+            // Mettre à jour les styles visuels
+            document.querySelectorAll('.magnet-checkbox').forEach(cb => {
+                updateMagnetItemStyle(cb);
+            });
+        }
+        
+        function selectAllMagnets() {
+            document.querySelectorAll('.magnet-checkbox').forEach(cb => {
+                cb.checked = true;
+            });
+            updateSelectedCount();
+        }
+        
+        function deselectAllMagnets() {
+            document.querySelectorAll('.magnet-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelectedCount();
+        }
+        
+        function selectSingleMagnetFromList(magnetId, filename) {
+            // Mode sélection unique : remplir le champ et fermer
+            const targetField = document.getElementById(currentAllDebridTargetField);
+            if (targetField) {
+                targetField.value = magnetId;
+            } else {
+                document.getElementById('allDebridId').value = magnetId;
+            }
+            
+            closeAllDebridModal();
+            currentAllDebridTargetField = 'allDebridId';
+            showStatus(`Magnet sélectionné: ${filename.substring(0, 50)}${filename.length > 50 ? '...' : ''}`, 'success');
+        }
+        
+        async function addSelectedMagnets() {
+            const checkboxes = document.querySelectorAll('.magnet-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showStatus('Veuillez sélectionner au moins un magnet', 'error');
+                return;
+            }
+            
+            const magnetIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Déterminer le contexte (saison, série, etc.)
+            let selectedSeason = null;
+            let tmdbId = '';
+            
+            // Si on est dans le mode ajout multiple depuis la recherche
+            if (window.currentSeasonForMultiple) {
+                selectedSeason = window.currentSeasonForMultiple;
+                tmdbId = currentContent ? currentContent.tmdbId : document.getElementById('searchTmdbId').value.trim();
+            } else {
+                // Sinon, utiliser le formulaire principal
+                const seasonSelect = document.getElementById('seasonSelect');
+                tmdbId = document.getElementById('tmdbId').value.trim() || (currentContent ? currentContent.tmdbId : '');
+                selectedSeason = seasonSelect ? seasonSelect.value : null;
+            }
+            
+            if (!tmdbId) {
+                showStatus('Veuillez d\'abord entrer ou rechercher un ID TMDB', 'error');
+                return;
+            }
+            
+            if (!selectedSeason) {
+                showStatus('Veuillez sélectionner une saison', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('addSelectedBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Ajout en cours...';
+            
+            try {
+                const response = await fetch('/api/add-multiple-episodes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tmdbId: tmdbId,
+                        magnetIds: magnetIds,
+                        seasonNumber: parseInt(selectedSeason)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Masquer automatiquement les magnets ajoutés
+                    const hidden = getHiddenMagnets();
+                    magnetIds.forEach(id => {
+                        if (!hidden.includes(id)) {
+                            hidden.push(id);
+                        }
+                    });
+                    setHiddenMagnets(hidden);
+                    
+                    closeAllDebridModal();
+                    window.currentSeasonForMultiple = null; // Réinitialiser
+                    
+                    let message = `${data.addedCount} épisode(s) ajouté(s) avec succès !`;
+                    if (data.episodes && data.episodes.length > 0) {
+                        const episodesList = data.episodes.map(e => `E${e.episode}`).join(', ');
+                        message += ` (${episodesList})`;
+                    }
+                    showStatus(message, 'success');
+                    
+                    if (data.errors && data.errors.length > 0) {
+                        console.warn('Erreurs:', data.errors);
+                        if (data.errors.length > 0) {
+                            showStatus(`${message} (${data.errors.length} erreur(s))`, 'success');
+                        }
+                    }
+                    
+                    // Recharger les résultats si on est dans la recherche
+                    if (document.getElementById('searchResult').style.display !== 'none') {
+                        setTimeout(() => {
+                            searchContent();
+                        }, 1000);
+                    } else {
+                        // Recharger les saisons dans le formulaire
+                        setTimeout(() => {
+                            loadSeasons(tmdbId);
+                        }, 1000);
+                    }
+                } else {
+                    throw new Error(data.error || data.message || 'Erreur lors de l\'ajout des épisodes');
+                }
+            } catch (error) {
+                showStatus('Erreur : ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Ajouter sélectionnés';
+            }
+        }
+        
+        function selectAllDebridMagnet(magnetId, filename) {
+            // Ancienne fonction pour compatibilité - utilise maintenant selectSingleMagnetFromList
+            selectSingleMagnetFromList(magnetId, filename);
+        }
+        
+        // Fermer le modal en cliquant en dehors
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('allDebridModal');
+            if (event.target === modal) {
+                closeAllDebridModal();
+            }
+        });
+    </script>
+</body>
+</html>
+

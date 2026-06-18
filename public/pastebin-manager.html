@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Pastebin - StremioPasteBin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .add-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .add-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .add-form button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        
+        .add-form button:hover {
+            background: #5568d3;
+        }
+        
+        .codes-list {
+            list-style: none;
+        }
+        
+        .code-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+        
+        .code-item:hover {
+            background: #e9ecef;
+        }
+        
+        .code-item .code {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+        
+        .code-item .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .code-item button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .code-item .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .code-item .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .code-item .btn-move {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .code-item .btn-move:hover {
+            background: #5a6268;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .save-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .save-btn:hover {
+            background: #218838;
+        }
+        
+        .save-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #0d47a1;
+        }
+        
+        .nav-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: #f0f0f0;
+            text-decoration: none;
+        }
+        
+        .settings-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .settings-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .settings-grid label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .settings-grid input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .settings-grid input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .settings-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .key-status {
+            font-size: 13px;
+            color: #155724;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <h1>🔗 Configuration Pastebin & AllDebrid</h1>
+            <p class="subtitle">Configurez la clé AllDebrid, l'URL des pastes et les codes à parser</p>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
+                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
+                <a href="/refresh.html" class="nav-link">🔄 Refresh</a>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 Information :</strong> Configurez d'abord la clé API AllDebrid et l'URL de base des pastes (format raw, se terminant par <code>/raw/</code>).
+            Ensuite ajoutez les codes pastebin (8 caractères alphanumériques).
+        </div>
+
+        <div class="settings-section">
+            <h2>⚙️ Paramètres généraux</h2>
+            <div class="settings-grid">
+                <div>
+                    <label for="alldebridApiKey">Clé API AllDebrid</label>
+                    <input type="password" id="alldebridApiKey" placeholder="Votre clé API AllDebrid" autocomplete="off">
+                    <div class="settings-hint">Laissez vide pour conserver la clé actuelle. Visible uniquement lors de la saisie.</div>
+                    <div id="keyStatus" class="key-status"></div>
+                </div>
+                <div>
+                    <label for="pastebinBaseUrl">URL de base Pastebin (raw)</label>
+                    <input type="url" id="pastebinBaseUrl" placeholder="https://paste.example.com/raw/">
+                    <div class="settings-hint">URL vers laquelle le code pastebin est ajouté pour récupérer le contenu brut.</div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="font-size: 18px; color: #333; margin-bottom: 16px;">📋 Codes Pastebin</h2>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="add-form">
+            <input 
+                type="text" 
+                id="newCode" 
+                placeholder="Entrez un code pastebin (ex: F8h3sAzM)" 
+                pattern="[a-zA-Z0-9]{8}"
+                maxlength="8"
+                style="font-family: monospace;"
+            >
+            <button onclick="addCode()">➕ Ajouter</button>
+        </div>
+        
+        <ul id="codesList" class="codes-list"></ul>
+        
+        <div class="save-section">
+            <button id="saveBtn" class="save-btn" onclick="saveCodes()">💾 Enregistrer les modifications</button>
+        </div>
+    </div>
+    
+    <script>
+        let codes = [];
+        let hasChanges = false;
+        let settingsLoaded = false;
+        let currentKeyMasked = '';
+        
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/admin/settings');
+                if (!response.ok) throw new Error('Impossible de charger les paramètres');
+                const data = await response.json();
+                codes = data.codes || [];
+                const settings = data.settings || {};
+                document.getElementById('pastebinBaseUrl').value = settings.pastebinBaseUrl || '';
+                currentKeyMasked = settings.alldebridApiKeyMasked || '';
+                const keyStatus = document.getElementById('keyStatus');
+                if (settings.alldebridApiKeyConfigured) {
+                    keyStatus.textContent = `Clé configurée (${currentKeyMasked})`;
+                } else {
+                    keyStatus.textContent = 'Aucune clé configurée';
+                    keyStatus.style.color = '#856404';
+                }
+                settingsLoaded = true;
+                renderCodes();
+            } catch (error) {
+                showStatus('Erreur lors du chargement: ' + error.message, 'error');
+            }
+        }
+        
+        // Charger les codes au démarrage
+        async function loadCodes() {
+            await loadSettings();
+        }
+        
+        // Afficher les codes
+        function renderCodes() {
+            const list = document.getElementById('codesList');
+            
+            if (codes.length === 0) {
+                list.innerHTML = '<li class="empty-state">Aucun code ajouté. Ajoutez votre premier code ci-dessus.</li>';
+                return;
+            }
+            
+            list.innerHTML = codes.map((code, index) => `
+                <li class="code-item">
+                    <span class="code">${code}</span>
+                    <div class="actions">
+                        ${index > 0 ? `<button class="btn-move" onclick="moveCode(${index}, -1)">⬆️</button>` : ''}
+                        ${index < codes.length - 1 ? `<button class="btn-move" onclick="moveCode(${index}, 1)">⬇️</button>` : ''}
+                        <button class="btn-delete" onclick="deleteCode(${index})">🗑️ Supprimer</button>
+                    </div>
+                </li>
+            `).join('');
+            
+            updateSaveButton();
+        }
+        
+        // Ajouter un code
+        function addCode() {
+            const input = document.getElementById('newCode');
+            const code = input.value.trim();
+            
+            if (!code) {
+                showStatus('Veuillez entrer un code', 'error');
+                return;
+            }
+            
+            if (!/^[a-zA-Z0-9]{8}$/.test(code)) {
+                showStatus('Le code doit contenir exactement 8 caractères alphanumériques (0-9, a-z, A-Z)', 'error');
+                return;
+            }
+            
+            if (codes.includes(code)) {
+                showStatus('Ce code existe déjà dans la liste', 'error');
+                return;
+            }
+            
+            codes.push(code);
+            input.value = '';
+            hasChanges = true;
+            renderCodes();
+            showStatus(`Code ${code} ajouté avec succès`, 'success');
+        }
+        
+        // Supprimer un code
+        function deleteCode(index) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer le code ${codes[index]} ?`)) {
+                codes.splice(index, 1);
+                hasChanges = true;
+                renderCodes();
+                showStatus('Code supprimé', 'success');
+            }
+        }
+        
+        // Déplacer un code
+        function moveCode(index, direction) {
+            if ((direction === -1 && index === 0) || (direction === 1 && index === codes.length - 1)) {
+                return;
+            }
+            
+            const newIndex = index + direction;
+            [codes[index], codes[newIndex]] = [codes[newIndex], codes[index]];
+            hasChanges = true;
+            renderCodes();
+        }
+        
+        // Enregistrer les codes
+        async function saveCodes() {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = '⏳ Enregistrement...';
+            
+            try {
+                const settingsBody = {
+                    pastebinBaseUrl: document.getElementById('pastebinBaseUrl').value.trim()
+                };
+                const newKey = document.getElementById('alldebridApiKey').value.trim();
+                if (newKey) {
+                    settingsBody.alldebridApiKey = newKey;
+                }
+
+                const settingsResponse = await fetch('/api/admin/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settingsBody)
+                });
+                const settingsData = await settingsResponse.json();
+                if (!settingsResponse.ok || !settingsData.success) {
+                    throw new Error(settingsData.error || 'Erreur lors de la sauvegarde des paramètres');
+                }
+
+                const response = await fetch('/api/pastebin-codes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codes })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    hasChanges = false;
+                    document.getElementById('alldebridApiKey').value = '';
+                    await loadSettings();
+                    showStatus(`✅ Paramètres et ${codes.length} code(s) enregistré(s) ! Pris en compte au prochain refresh.`, 'success');
+                } else {
+                    throw new Error(data.message || 'Erreur lors de l\'enregistrement des codes');
+                }
+            } catch (error) {
+                showStatus('Erreur lors de l\'enregistrement: ' + error.message, 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '💾 Enregistrer les modifications';
+                updateSaveButton();
+            }
+        }
+        
+        // Mettre à jour le bouton sauvegarder
+        function updateSaveButton() {
+            const saveBtn = document.getElementById('saveBtn');
+            if (hasChanges) {
+                saveBtn.disabled = false;
+            } else {
+                saveBtn.disabled = !hasChanges;
+            }
+        }
+        
+        // Afficher un message de statut
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Permettre l'ajout avec Enter
+        document.getElementById('newCode').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addCode();
+            }
+        });
+
+        document.getElementById('pastebinBaseUrl').addEventListener('input', () => {
+            hasChanges = true;
+            updateSaveButton();
+        });
+        document.getElementById('alldebridApiKey').addEventListener('input', () => {
+            hasChanges = true;
+            updateSaveButton();
+        });
+        
+        // Charger les codes au chargement de la page
+        loadCodes();
+    </script>
+</body>
+</html>
+
+
+
+
+

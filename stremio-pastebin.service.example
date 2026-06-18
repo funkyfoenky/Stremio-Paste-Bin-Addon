@@ -1,0 +1,21 @@
+[Unit]
+Description=Serveur Node.js StremioPasteBin
+After=network.target
+
+[Service]
+Type=simple
+User=stremio
+WorkingDirectory=/opt/stremio-pastebin
+EnvironmentFile=/opt/stremio-pastebin/.env
+Environment="NODE_ENV=production"
+Environment="PORT=7011"
+Environment="HOST=0.0.0.0"
+Environment="BASE_URL=https://stremio-pastebin.example.com"
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

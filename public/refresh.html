@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refresh Catalogue - Stremio Addon</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .stats {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .refresh-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .nav-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: #f0f0f0;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <h1>🔄 Refresh Catalogue</h1>
+            <p class="subtitle">Mettre à jour le catalogue depuis les Pastebins</p>
+            <div class="nav-links">
+                <a href="/" class="nav-link">🏠 Accueil</a>
+                <a href="/add-content.html" class="nav-link">➕ Ajouter du contenu</a>
+                <a href="/manage-content.html" class="nav-link">📋 Gérer le contenu</a>
+                <a href="/pastebin-manager.html" class="nav-link">🔗 Pastebin Manager</a>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Films actuels:</span>
+                <span class="stat-value" id="filmsCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Séries actuelles:</span>
+                <span class="stat-value" id="seriesCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Épisodes:</span>
+                <span class="stat-value" id="episodesCount">-</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Catalogues:</span>
+                <span class="stat-value" id="catalogsCount">-</span>
+            </div>
+        </div>
+        
+        <button id="refreshBtn" class="refresh-btn" onclick="startRefresh()">
+            🔄 Mettre à jour le catalogue
+        </button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="footer">
+            Le refresh peut prendre 1-3 minutes selon la taille du catalogue
+        </div>
+    </div>
+    
+    <script>
+        const refreshBtn = document.getElementById('refreshBtn');
+        const statusDiv = document.getElementById('status');
+        const filmsCountSpan = document.getElementById('filmsCount');
+        const seriesCountSpan = document.getElementById('seriesCount');
+        const episodesCountSpan = document.getElementById('episodesCount');
+        const catalogsCountSpan = document.getElementById('catalogsCount');
+        
+        // Charger les stats initiales
+        async function loadStats() {
+            try {
+                const response = await fetch('/refresh/status');
+                const data = await response.json();
+                filmsCountSpan.textContent = data.filmsCount || 0;
+                seriesCountSpan.textContent = data.seriesCount || 0;
+                episodesCountSpan.textContent = data.episodesCount || 0;
+                catalogsCountSpan.textContent = data.catalogsCount || 0;
+            } catch (error) {
+                console.error('Erreur lors du chargement des stats:', error);
+            }
+        }
+        
+        // Vérifier le statut périodiquement
+        let statusCheckInterval = null;
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('/refresh/status');
+                const data = await response.json();
+                
+                if (!data.inProgress && refreshBtn.disabled) {
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '🔄 Mettre à jour le catalogue';
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                    loadStats();
+
+                    const result = data.lastResult;
+                    if (result?.status === 'success') {
+                        const statsMsg = `✅ ${result.message}<br><br>📊 ${result.stats.films} films | ${result.stats.series} séries | ${result.stats.episodes} épisodes`;
+                        showStatus('success', statsMsg);
+                    } else if (result?.status === 'error') {
+                        showStatus('error', '❌ ' + result.message);
+                    } else {
+                        showStatus('success', '✅ Refresh terminé.');
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors de la vérification du statut:', error);
+            }
+        }
+        
+        async function startRefresh() {
+            if (refreshBtn.disabled) return;
+            
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="loading"></span>Mise à jour en cours...';
+            
+            showStatus('info', '🔄 Mise à jour du catalogue en cours, cela peut prendre quelques minutes...');
+            
+            // Démarrer la vérification périodique du statut
+            if (!statusCheckInterval) {
+                statusCheckInterval = setInterval(checkStatus, 2000);
+            }
+            
+            try {
+                const response = await fetch('/refresh');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const statsMsg = `✅ ${data.message}<br><br>📊 ${data.stats.films} films | ${data.stats.series} séries | ${data.stats.episodes} épisodes`;
+                    showStatus('success', statsMsg);
+                    filmsCountSpan.textContent = data.stats.films;
+                    seriesCountSpan.textContent = data.stats.series;
+                    episodesCountSpan.textContent = data.stats.episodes;
+                } else if (data.status === 'started' || data.status === 'in_progress') {
+                    // Réponse normale : le refresh tourne en arrière-plan
+                    showStatus('info', '🔄 Mise à jour en cours, veuillez patienter…');
+                } else {
+                    showStatus('error', '❌ Erreur: ' + data.message);
+                }
+            } catch (error) {
+                showStatus('error', '❌ Erreur: ' + error.message);
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '🔄 Mettre à jour le catalogue';
+            }
+        }
+        
+        function showStatus(type, message) {
+            statusDiv.className = 'status ' + type;
+            statusDiv.innerHTML = message;
+        }
+        
+        // Charger les stats au démarrage
+        loadStats();
+        
+        // Recharger les stats toutes les 30 secondes
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
+

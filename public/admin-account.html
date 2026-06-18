@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte Administrateur - StremioPasteBin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 26px;
+        }
+        
+        .back-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #664d03;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+            border: 1px solid #ffecb5;
+        }
+        
+        .form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 14px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .hint {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.35);
+        }
+        
+        .error, .success {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .error.show { display: block; background: #fee; color: #c33; }
+        .success.show { display: block; background: #efe; color: #2e7d32; }
+        
+        .footer-note {
+            margin-top: 18px;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Compte administrateur</h1>
+            <a href="/" class="back-btn">← Menu</a>
+        </div>
+        
+        <div class="warning" id="warning" style="display:none;">
+            <strong>Sécurité :</strong> votre compte admin est encore sur un état « par défaut ».
+            Merci de changer au minimum le mot de passe avant de continuer.
+        </div>
+        
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+        
+        <div class="form">
+            <form id="adminAccountForm">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="username">Login admin</label>
+                        <input type="text" id="username" autocomplete="username" required>
+                        <div class="hint">Ex: <code>admin</code> ou un identifiant non devinable.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="currentPassword">Mot de passe actuel</label>
+                        <input type="password" id="currentPassword" autocomplete="current-password" required>
+                        <div class="hint">Requis pour valider les changements.</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="newPassword">Nouveau mot de passe (optionnel)</label>
+                        <input type="password" id="newPassword" autocomplete="new-password" placeholder="Laissez vide pour ne pas changer">
+                        <div class="hint">Minimum 8 caractères recommandé.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="confirmNewPassword" autocomplete="new-password" placeholder="Laissez vide si inchangé">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Enregistrer</button>
+            </form>
+        </div>
+        
+        <div class="footer-note">
+            Après changement du login, pensez à l’utiliser lors de vos prochaines connexions.
+        </div>
+    </div>
+    
+    <script>
+        function showError(message) {
+            const el = document.getElementById('error');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+        
+        function showSuccess(message) {
+            const el = document.getElementById('success');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+        
+        async function loadAdminInfo() {
+            try {
+                const res = await fetch('/api/admin/account');
+                let data = null;
+                const ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    data = { success: false, error: text || `Erreur HTTP ${res.status}` };
+                }
+                if (data.success) {
+                    document.getElementById('username').value = data.admin.username || 'admin';
+                    if (data.admin.mustChangePassword) {
+                        document.getElementById('warning').style.display = 'block';
+                    }
+                } else {
+                    showError(data.error || 'Impossible de charger le compte admin');
+                }
+            } catch (e) {
+                showError('Erreur de connexion au serveur');
+            }
+        }
+        
+        document.getElementById('adminAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (!username) return showError('Login requis');
+            if (!currentPassword) return showError('Mot de passe actuel requis');
+            
+            if ((newPassword || confirmNewPassword) && newPassword !== confirmNewPassword) {
+                return showError('La confirmation du nouveau mot de passe ne correspond pas');
+            }
+            
+            try {
+                const res = await fetch('/api/admin/account', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username,
+                        currentPassword,
+                        newPassword: newPassword || undefined
+                    })
+                });
+                let data = null;
+                const ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    data = await res.json();
+                } else {
+                    const text = await res.text();
+                    data = { success: false, error: text || `Erreur HTTP ${res.status}` };
+                }
+                
+                if (data.success) {
+                    showSuccess('Compte admin mis à jour');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                    document.getElementById('warning').style.display = data.admin.mustChangePassword ? 'block' : 'none';
+                } else {
+                    showError(data.error || 'Erreur lors de la mise à jour');
+                }
+            } catch (e) {
+                showError('Erreur de connexion au serveur');
+            }
+        });
+        
+        loadAdminInfo();
+    </script>
+</body>
+</html>
+
